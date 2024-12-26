@@ -12,7 +12,7 @@ Want to learn how to play? check [Rule Book](https://github.com/abstract-crypto/
 
 ## Local Developments
 
-#### deploy
+#### install
 
 ```bash
 pnpm i 
