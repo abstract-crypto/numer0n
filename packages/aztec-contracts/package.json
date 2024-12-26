@@ -1,0 +1,24 @@
+{
+    "name": "aztec-numer0n-contracts",
+    "type": "module",
+    "files": [
+        "src",
+        "test"
+    ],
+    "scripts": {
+        "build": "yarn clean && tsc -b",
+        "clean": "rm -rf ./dest .tsbuildinfo",
+        "test": "vitest run"
+    },
+    "dependencies": {
+        "@aztec/accounts": "0.67.0",
+        "@aztec/aztec.js": "0.67.0",
+        "@aztec/foundation": "0.67.0",
+        "@aztec/noir-contracts.js": "0.67.0",
+        "buffer": "^6.0.3",
+        "ts-node": "^10.9.1",
+        "typescript": "^5.7.2",
+        "vitest": "^2.1.5"
+    },
+    "types": "./dest/index.d.ts"
+}

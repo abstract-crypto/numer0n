@@ -1,0 +1,12 @@
+{
+    "name": "aztec-numer0n",
+    "version": "0.0.1",
+    "private": true,
+    "workspaces": [
+        "packages/*"
+    ],
+    "dependencies": {},
+    "engines": {
+        "node": ">=18.0.0"
+    }
+}
