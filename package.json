@@ -5,8 +5,17 @@
     "workspaces": [
         "packages/*"
     ],
-    "dependencies": {},
+    "dependencies": {
+        "patch-packages": "^1.0.0",
+        "postinstall": "^0.7.5"
+    },
     "engines": {
         "node": ">=18.0.0"
+    },
+    "pnpm": {
+        "patchedDependencies": {
+            "@aztec/circuits.js": "patches/@aztec__circuits.js.patch",
+            "@aztec/foundation": "patches/@aztec__foundation.patch"
+        }
     }
 }

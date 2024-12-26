@@ -1,0 +1,56 @@
+diff --git a/dest/url/index.js b/dest/url/index.js
+index a56c88d9c2d14f4726ed5ff27bb88a68b47b11e0..f1d9839d46885fa792e9207762cc2c53785ae677 100644
+--- a/dest/url/index.js
++++ b/dest/url/index.js
+@@ -16,7 +16,7 @@
+ // CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+ // TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+ // SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+-import { sep } from 'path';
++import path from 'path';
+ /**
+  * File URI to Path function.
+  *
+@@ -31,7 +31,7 @@ export function fileURLToPath(uri) {
+     const rest = decodeURI(uri.substring(7));
+     const firstSlash = rest.indexOf('/');
+     let host = rest.substring(0, firstSlash);
+-    let path = rest.substring(firstSlash + 1);
++    let pathname = rest.substring(firstSlash + 1);
+     // 2.  Scheme Definition
+     // As a special case, <host> can be the string "localhost" or the empty
+     // string; this is interpreted as "the machine from which the URL is
+@@ -40,7 +40,7 @@ export function fileURLToPath(uri) {
+         host = '';
+     }
+     if (host) {
+-        host = sep + sep + host;
++        host = path.sep + path.sep + host;
+     }
+     // 3.2  Drives, drive letters, mount points, file system root
+     // Drive letters are mapped into the top of a file URI in various ways,
+@@ -49,18 +49,18 @@ export function fileURLToPath(uri) {
+     // "file:///c|/tmp/test.txt".  In some cases, the colon is left
+     // unchanged, as in "file:///c:/tmp/test.txt".  In other cases, the
+     // colon is simply omitted, as in "file:///c/tmp/test.txt".
+-    path = path.replace(/^(.+)\|/, '$1:');
++    pathname = pathname.replace(/^(.+)\|/, '$1:');
+     // for Windows, we need to invert the path separators from what a URI uses
+-    if (sep === '\\') {
+-        path = path.replace(/\//g, '\\');
++    if (path.sep === '\\') {
++        pathname = pathname.replace(/\//g, '\\');
+     }
+-    if (/^.+:/.test(path)) {
++    if (/^.+:/.test(pathname)) {
+         // has Windows drive at beginning of path
+     }
+     else {
+         // unix path…
+-        path = sep + path;
++        pathname = path.sep + pathname;
+     }
+-    return host + path;
++    return host + pathname;
+ }
+ //# sourceMappingURL=data:application/json;base64,eyJ2ZXJzaW9uIjozLCJmaWxlIjoiaW5kZXguanMiLCJzb3VyY2VSb290IjoiIiwic291cmNlcyI6WyIuLi8uLi9zcmMvdXJsL2luZGV4LnRzIl0sIm5hbWVzIjpbXSwibWFwcGluZ3MiOiJBQUFBLG9CQUFvQjtBQUNwQiw2REFBNkQ7QUFDN0Qsd0VBQXdFO0FBQ3hFLGtFQUFrRTtBQUNsRSxzRUFBc0U7QUFDdEUsc0VBQXNFO0FBQ3RFLHFFQUFxRTtBQUNyRSx3RUFBd0U7QUFDeEUsNEJBQTRCO0FBQzVCLGlFQUFpRTtBQUNqRSxrRUFBa0U7QUFDbEUsa0VBQWtFO0FBQ2xFLHFFQUFxRTtBQUNyRSx5RUFBeUU7QUFDekUsdUVBQXVFO0FBQ3ZFLHVFQUF1RTtBQUN2RSxvRUFBb0U7QUFDcEUseURBQXlEO0FBQ3pELE9BQU8sRUFBRSxHQUFHLEVBQUUsTUFBTSxNQUFNLENBQUM7QUFFM0I7Ozs7OztHQU1HO0FBRUgsTUFBTSxVQUFVLGFBQWEsQ0FBQyxHQUFXO0lBQ3ZDLElBQUksT0FBTyxHQUFHLEtBQUssUUFBUSxJQUFJLEdBQUcsQ0FBQyxNQUFNLElBQUksQ0FBQyxJQUFJLEdBQUcsQ0FBQyxTQUFTLENBQUMsQ0FBQyxFQUFFLENBQUMsQ0FBQyxLQUFLLFNBQVMsRUFBRSxDQUFDO1FBQ3BGLE1BQU0sSUFBSSxTQUFTLENBQUMsc0RBQXNELENBQUMsQ0FBQztJQUM5RSxDQUFDO0lBRUQsTUFBTSxJQUFJLEdBQUcsU0FBUyxDQUFDLEdBQUcsQ0FBQyxTQUFTLENBQUMsQ0FBQyxDQUFDLENBQUMsQ0FBQztJQUN6QyxNQUFNLFVBQVUsR0FBRyxJQUFJLENBQUMsT0FBTyxDQUFDLEdBQUcsQ0FBQyxDQUFDO0lBQ3JDLElBQUksSUFBSSxHQUFHLElBQUksQ0FBQyxTQUFTLENBQUMsQ0FBQyxFQUFFLFVBQVUsQ0FBQyxDQUFDO0lBQ3pDLElBQUksSUFBSSxHQUFHLElBQUksQ0FBQyxTQUFTLENBQUMsVUFBVSxHQUFHLENBQUMsQ0FBQyxDQUFDO0lBRTFDLHdCQUF3QjtJQUN4Qix1RUFBdUU7SUFDdkUsb0VBQW9FO0lBQ3BFLHNCQUFzQjtJQUN0QixJQUFJLElBQUksS0FBSyxXQUFXLEVBQUUsQ0FBQztRQUN6QixJQUFJLEdBQUcsRUFBRSxDQUFDO0lBQ1osQ0FBQztJQUVELElBQUksSUFBSSxFQUFFLENBQUM7UUFDVCxJQUFJLEdBQUcsR0FBRyxHQUFHLEdBQUcsR0FBRyxJQUFJLENBQUM7SUFDMUIsQ0FBQztJQUVELDZEQUE2RDtJQUM3RCx1RUFBdUU7SUFDdkUsZ0VBQWdFO0lBQ2hFLG9FQUFvRTtJQUNwRSwrREFBK0Q7SUFDL0QsbUVBQW1FO0lBQ25FLDJEQUEyRDtJQUMzRCxJQUFJLEdBQUcsSUFBSSxDQUFDLE9BQU8sQ0FBQyxTQUFTLEVBQUUsS0FBSyxDQUFDLENBQUM7SUFFdEMsMEVBQTBFO0lBQzFFLElBQUksR0FBRyxLQUFLLElBQUksRUFBRSxDQUFDO1FBQ2pCLElBQUksR0FBRyxJQUFJLENBQUMsT0FBTyxDQUFDLEtBQUssRUFBRSxJQUFJLENBQUMsQ0FBQztJQUNuQyxDQUFDO0lBRUQsSUFBSSxNQUFNLENBQUMsSUFBSSxDQUFDLElBQUksQ0FBQyxFQUFFLENBQUM7UUFDdEIseUNBQXlDO0lBQzNDLENBQUM7U0FBTSxDQUFDO1FBQ04sYUFBYTtRQUNiLElBQUksR0FBRyxHQUFHLEdBQUcsSUFBSSxDQUFDO0lBQ3BCLENBQUM7SUFFRCxPQUFPLElBQUksR0FBRyxJQUFJLENBQUM7QUFDckIsQ0FBQyJ9

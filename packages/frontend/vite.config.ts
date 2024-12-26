@@ -18,6 +18,7 @@ const nodePolyfillsFix = (options?: PolyfillOptions | undefined): Plugin => {
 				return `../../node_modules/vite-plugin-node-polyfills/shims/${m[1]}/dist/index.cjs`;
 			}
 		},
+		// exclude: ["fs", "tty", "crypto"],
 	};
 };
 
@@ -31,15 +32,29 @@ export default defineConfig({
 	},
 	plugins: [
 		react(),
-		nodePolyfillsFix({ include: ["buffer", "process", "path"] }),
+		nodePolyfillsFix({
+			include: ["buffer", "process", "path", "crypto", "tty"],
+			// exclude: ["fs", "tty", "crypto"],
+		}),
 		topLevelAwait(),
 	],
 	optimizeDeps: {
-		exclude: ["@noir-lang/acvm_js", "@noir-lang/noirc_abi", "@aztec/bb-prover"],
+		exclude: [
+			"@noir-lang/acvm_js",
+			"@noir-lang/noirc_abi",
+			"@aztec/bb-prover",
+			// "fs",
+			// "tty",
+			// "crypto",
+		],
 	},
 	resolve: {
 		alias: {
 			src: "/src",
+			// fs: "tiny-node-polyfill/fs", // or simply false
+			// tty: false,
+			// If needed:
+			// crypto: false,
 		},
 	},
 	base: "/",
