@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { createPXEClient, PXE } from "@aztec/aztec.js";
+// import { SANDBOX_URL } from "src/scripts/constants";
 
-const DEFAULT_PXE_URL = "http://localhost:8080";
+const DEFAULT_PXE_URL = "https://cdc2-185-115-4-23.ngrok-free.app";
 
 // TODO: when pxe changed, many updates/reset are needed probably around local storage
 export function usePXE() {

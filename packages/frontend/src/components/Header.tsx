@@ -1,7 +1,6 @@
 import { Group, Text, Button, Anchor } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { usePXE } from "../hooks/usePXE";
-import { SANDBOX_URL } from "../scripts/constants";
 import imgGithub from "../../public/github-mark.png";
 import { Game } from "src/services/game";
 import { useNavigate } from "react-router-dom";
@@ -19,10 +18,11 @@ export default function Header() {
 
 	useEffect(() => {
 		const check = async () => {
-			console.log("SANDBOX_URL: ", SANDBOX_URL);
-			console.log("pxe()", pxe);
-			const info = await pxe?.getNodeInfo();
-			console.log("info", info);
+			if (pxe) {
+				console.log("pxe()", pxe);
+				const info = await pxe?.getNodeInfo();
+				console.log("info", info);
+			}
 		};
 
 		check();
@@ -49,7 +49,7 @@ export default function Header() {
 
 			<Group>
 				<Anchor
-					href="https://github.com/porco-rosso-j/aztec-numer0n/blob/main/RuleBook.md"
+					href="https://github.com/abstract-crypto/numer0n/blob/main/RuleBook.md"
 					target="_blank"
 					rel="noreferrer"
 					mr={10}
@@ -59,7 +59,7 @@ export default function Header() {
 					</Text>
 				</Anchor>
 				<Anchor
-					href="https://github.com/porco-rosso-j/aztec-numer0n"
+					href="https://github.com/abstract-crypto/numer0n"
 					target="_blank"
 					rel="noreferrer"
 					mt={8}
