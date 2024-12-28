@@ -6,7 +6,7 @@ import { shortenAddress } from "../scripts/utils";
 
 type PlayerBoardType = {
 	isSelf: boolean;
-	opponentSecretNum: string;
+	opponentSecretNum: number | null;
 };
 
 export default function PlayerBoard(props: PlayerBoardType) {

@@ -34,7 +34,7 @@ export const useGame = () => {
 	// console.log("resultRowsSelf in useGuess: ", resultRowsSelf);
 	// console.log("resultRowsOpponent in useGuess: ", resultRowsOpponent);
 
-	const [isFirst, setIsFirst] = useState(false);
+	const [isFirst, setIsFirst] = useState<boolean | null>(null);
 	const [round, setRound] = useState(0);
 	const [status, setStatus] = useState(0);
 	const [gameResult, setGameResult] = useState<GameResult | null>(null);

@@ -11,15 +11,24 @@ import GameResultModal from "./Modals/GameResultModal";
 import { GAME_STATUS } from "src/services/game";
 
 export default function Game() {
-	const { gameData, isFirst, round, status, gameResult, updateStates } =
-		useGameContext();
+	const {
+		gameData,
+		isFirst,
+		round,
+		status,
+		gameResult,
+		numer0nService,
+		updateStates,
+	} = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [IsTurnNotificationModalOpen, setOpenTurnNotificationModal] =
 		useState(false);
 	const [isGameResultModalOpen, setIsGameResultModalOpen] = useState(false);
 
 	// const [itemUsed, setIsItemUsed] = useState(false);
-	const [opponentSecretNum, setOpponentSecretNum] = useState<string>("");
+	const [opponentSecretNum, setOpponentSecretNum] = useState<number | null>(
+		null
+	);
 	const [isMyTurn, setIsMyTurn] = useState(false);
 
 	// Add secret num
@@ -47,7 +56,11 @@ export default function Game() {
 				return;
 			}
 
-			if (status == GAME_STATUS.FINISHED) {
+			if (isFirst === null) {
+				return;
+			}
+
+			if (status !== GAME_STATUS.STARTED) {
 				return;
 			}
 
@@ -71,11 +84,24 @@ export default function Game() {
 	// 	setIsItemUsed(true);
 	// };
 
-	const getOpponentSecretNum = (num: string) => {
-		// if (game.getGameStatus() == GAME_STATUS.FINISHED) {
-		// 	setOpponentSecretNum(num);
-		// }
-	};
+	useEffect(() => {
+		const checkSecretNum = async () => {
+			if (
+				opponentSecretNum === null &&
+				gameData &&
+				numer0nService &&
+				status === GAME_STATUS.FINISHED
+			) {
+				const secretNum = await numer0nService.getSecretNum(
+					gameData.getOpponent().address!
+				);
+				console.log("secretNum in checkSecretNum: ", secretNum);
+				setOpponentSecretNum(secretNum);
+			}
+		};
+
+		checkSecretNum();
+	}, [opponentSecretNum, gameData, numer0nService, status]);
 
 	useEffect(() => {
 		if (gameResult !== null) {
@@ -184,6 +210,7 @@ export default function Game() {
 					isOpen={isGameResultModalOpen}
 					onClose={() => setIsGameResultModalOpen(false)}
 					gameResult={gameResult}
+					opponentSecretNum={opponentSecretNum}
 				/>
 			</Container>
 		</>

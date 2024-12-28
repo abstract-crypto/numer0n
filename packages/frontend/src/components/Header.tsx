@@ -5,10 +5,12 @@ import imgGithub from "../../public/github-mark.png";
 import { Game } from "src/services/game";
 import { useNavigate } from "react-router-dom";
 import { removeItem } from "src/scripts/storage";
+import SetPXEModal from "./Modals/SetPXEModal";
 
 export default function Header() {
 	const [gameData, setGameData] = useState<Game | null>(null);
 	const { pxe } = usePXE();
+	const [isPXEModalOpen, setIsPXEModalOpen] = useState<boolean>(false);
 	const navigate = useNavigate();
 
 	useEffect(() => {
@@ -68,6 +70,13 @@ export default function Header() {
 					<img src={imgGithub} alt="github" style={{ width: 25, height: 25 }} />
 				</Anchor>
 				<Button
+					variant="filled"
+					color="teal"
+					onClick={() => setIsPXEModalOpen(true)}
+				>
+					PXE
+				</Button>
+				<Button
 					onClick={handleLeave}
 					mr={35}
 					style={{ backgroundColor: "gray" }}
@@ -75,6 +84,10 @@ export default function Header() {
 					Leave
 				</Button>
 			</Group>
+			<SetPXEModal
+				isOpen={isPXEModalOpen}
+				onClose={() => setIsPXEModalOpen(false)}
+			/>
 		</Group>
 	);
 }

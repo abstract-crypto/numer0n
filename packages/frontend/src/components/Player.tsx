@@ -3,9 +3,9 @@ import { useState, useEffect } from "react";
 import Card from "./Card";
 import { useGameContext } from "../contexts/useGameContext";
 import { numLen } from "../scripts/constants";
-import { paddHeadZero } from "../scripts/utils";
+import { paddHeadZero, stringfyAndPaddZero } from "../scripts/utils";
 
-type PlayerType = { isSelf: boolean; opponentSecretNum: string };
+type PlayerType = { isSelf: boolean; opponentSecretNum: number | null };
 
 export default function Player(props: PlayerType) {
 	const { gameData } = useGameContext();
@@ -19,8 +19,8 @@ export default function Player(props: PlayerType) {
 	// Add opponent secret num
 	useEffect(() => {
 		(async () => {
-			if (props.opponentSecretNum != "") {
-				const arrayNum = props.opponentSecretNum
+			if (props.opponentSecretNum != null) {
+				const arrayNum = stringfyAndPaddZero(props.opponentSecretNum)
 					.split("")
 					.map((num) => parseInt(num, 10));
 

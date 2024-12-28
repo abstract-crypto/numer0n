@@ -2,17 +2,19 @@ import { Modal, Text, Box, Button } from "@mantine/core";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useGameContext } from "src/contexts/useGameContext";
+import { GAME_STATUS } from "src/services/game";
 
 type GameResultModalType = {
 	isOpen: boolean;
 	onClose: () => void;
 	gameResult: string | null;
+	opponentSecretNum: number | null;
 };
 
 function GameResultModal(props: GameResultModalType) {
 	const navigate = useNavigate();
-	const { gameData, numer0nService } = useGameContext();
-	const [secretNum, setSecretNum] = useState<number | null>(null);
+	const { gameData, numer0nService, status } = useGameContext();
+	// const [secretNum, setSecretNum] = useState<number | null>(null);
 
 	// if (props.gameResult === null) {
 	// 	return null;
@@ -27,19 +29,25 @@ function GameResultModal(props: GameResultModalType) {
 		navigate("/");
 	};
 
-	useEffect(() => {
-		const checkSecretNum = async () => {
-			if (secretNum === null && gameData && numer0nService) {
-				const secretNum = await numer0nService.getSecretNum(
-					gameData.getOpponent().address!
-				);
-				console.log("secretNum in checkSecretNum: ", secretNum);
-				setSecretNum(secretNum);
-			}
-		};
+	// useEffect(() => {
+	// 	const checkSecretNum = async () => {
+	// 		if (
+	// 			props.isOpen &&
+	// 			secretNum === null &&
+	// 			gameData &&
+	// 			numer0nService &&
+	// 			status === GAME_STATUS.FINISHED
+	// 		) {
+	// 			const secretNum = await numer0nService.getSecretNum(
+	// 				gameData.getOpponent().address!
+	// 			);
+	// 			console.log("secretNum in checkSecretNum: ", secretNum);
+	// 			setSecretNum(secretNum);
+	// 		}
+	// 	};
 
-		checkSecretNum();
-	}, [secretNum, gameData, numer0nService]);
+	// 	checkSecretNum();
+	// }, [props.isOpen, secretNum, gameData, numer0nService, status]);
 
 	return (
 		<Modal size="sm" opened={props.isOpen} onClose={props.onClose} centered>
@@ -72,11 +80,11 @@ function GameResultModal(props: GameResultModalType) {
 					</Text>
 				)}
 
-				{secretNum && (
+				{props.opponentSecretNum && (
 					<Text my={20} size="sm">
 						Opponent's secret number is: <br />
 						<Text fw={700} mt={10} style={{ fontSize: "25px" }}>
-							{secretNum}
+							{props.opponentSecretNum}
 						</Text>
 					</Text>
 				)}

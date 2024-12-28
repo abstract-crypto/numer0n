@@ -29,6 +29,8 @@ export default function Onboard() {
 	const [invitationLink, setInvitationLink] = useState<string>("");
 	const [playersSet, setPlayersSet] = useState<boolean>(false);
 
+	const [error, setError] = useState<string | null>(null);
+
 	useEffect(() => {
 		const gameInstance = new Game();
 		setGameData(gameInstance);
@@ -127,16 +129,21 @@ export default function Onboard() {
 			setIsGameCreated(false);
 			setInvitationLink("");
 			setPlayersSet(false);
+			setError(null);
 		}
 	}, [playersSet, navigate]);
 
 	async function handleCreateNewGame() {
+		setError(null);
+		setLoadingCreate(false);
+		setLoadingCreate(true);
+
 		if (!gameData) {
 			console.log("Game data not found");
+			setError("Game data not found");
+			setLoadingCreate(false);
 			return;
 		}
-
-		setLoadingCreate(true);
 
 		// generate game password
 		const gameCode = "0x" + crypto.randomUUID().slice(0, 5);
@@ -144,6 +151,8 @@ export default function Onboard() {
 
 		if (!player1 || !player2) {
 			console.error("Players not found");
+			setError("Players not found");
+			setLoadingCreate(false);
 			return;
 		}
 
@@ -151,6 +160,8 @@ export default function Onboard() {
 		const contractAddress = await createGame(player1, gameCode);
 		if (!contractAddress) {
 			console.error("Failed to create game");
+			setError("Failed to create game");
+			setLoadingCreate(false);
 			return;
 		}
 		console.log("contractAddress: ", contractAddress.toString());
@@ -170,9 +181,6 @@ export default function Onboard() {
 		}/invite?contract=${contractAddress.toString()}&secret=${gameCode}`;
 		setInvitationLink(invitationUrl);
 
-		setIsGameCreated(true);
-		setLoadingCreate(false);
-
 		const numer0nService = new Numer0nContractService(
 			contractAddress.toString(),
 			player1,
@@ -180,6 +188,9 @@ export default function Onboard() {
 		);
 
 		setNumer0nService(numer0nService);
+
+		setIsGameCreated(true);
+		setLoadingCreate(false);
 	}
 
 	return (
@@ -246,6 +257,7 @@ export default function Onboard() {
 							Create a new game
 						</Button>
 					)}
+					{error && <Text color="red">{error}</Text>}
 				</Center>
 			)}
 		</Container>
