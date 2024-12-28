@@ -10,8 +10,6 @@ import {
 } from "@mantine/core";
 import { useState } from "react";
 import { useGameContext } from "../../contexts/useGameContext";
-// import { addNumber } from "../../scripts";
-import { useAccounts } from "src/hooks/useAccount";
 
 type AddNumModalType = {
 	isOpen: boolean;
@@ -20,7 +18,6 @@ type AddNumModalType = {
 
 function AddNumMoodal(props: AddNumModalType) {
 	const { gameData, numer0nService } = useGameContext();
-	const { player1, player2 } = useAccounts();
 
 	const [input, setInput] = useState<string>("");
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
@@ -62,11 +59,6 @@ function AddNumMoodal(props: AddNumModalType) {
 			setLoading(true);
 			const num = Number(nums.join(""));
 			console.log(num);
-
-			const playerId = gameData.getSelf().id;
-			console.log("playerId :", playerId);
-			const player = playerId == 1 ? player1 : player2;
-			if (!player) return;
 
 			await numer0nService.addNumber(BigInt(num));
 			gameData.setSecretNumber(num);

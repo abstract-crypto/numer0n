@@ -10,78 +10,88 @@ import {
 } from "@mantine/core";
 import React, { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useAccountContext } from "src/contexts/useAccountContext";
 import { useGameContext } from "src/contexts/useGameContext";
-import { useAccounts } from "src/hooks/useAccount";
 // import { getGame, joinGame } from "src/scripts";
-import { Game, GAME_STATUS, GameStatus } from "src/services/game";
+import { Game, GAME_STATUS, GameData, GameStatus } from "src/services/game";
 import { Numer0nContractService } from "src/services/numer0n";
+import { Numer0nClient } from "src/services/numer0nClient";
 
 function InvitePage() {
-	const [gameData, setGameData] = useState<Game | null>(null);
-	const [numer0nService, setNumer0nService] =
-		useState<Numer0nContractService | null>(null);
+	const {
+		gameData,
+		numer0nService,
+		numer0nClient,
+		contractAddress,
+		setContractAddress,
+	} = useGameContext();
 	const navigate = useNavigate();
-	const { player1, player2 } = useAccounts();
+	const { wallet, setOpponent } = useAccountContext();
 	const location = useLocation();
-	const [contractAddress, setContractAddress] = useState("");
+	// const [contractAddress, setContractAddress] = useState("");
 	const [secretCode, setSecretCode] = useState("");
 	const [error, setError] = useState("");
-	const [loadingCreate, setLoadingCreate] = useState(false);
 	const [loadingJoin, setLoadingJoin] = useState(false);
 	const [completeJoin, setCompleteJoin] = useState(false);
 
 	useEffect(() => {
-		const gameInstance = new Game();
-		setGameData(gameInstance);
-	}, []);
+		const fetchGameData = async () => {
+			if (!gameData) {
+				console.log("Game data not found");
+				return;
+			}
+			if (!wallet) {
+				console.log("Wallet not found");
+				return;
+			}
 
-	useEffect(() => {
-		if (!gameData || !contractAddress) {
-			console.log("game not found");
-			return;
-		}
+			// Parse query params
+			const queryParams = new URLSearchParams(location.search);
+			const secret = queryParams.get("secret");
+			const port = queryParams.get("port");
 
-		if (!player1 || !player2) {
-			console.log("self or opponent not found");
-			return;
-		}
+			console.log("secret: ", secret);
 
-		const numer0nService = new Numer0nContractService(
-			contractAddress,
-			player2,
-			player1
-		);
+			if (!secret) {
+				setError("Invalid secret");
+				return;
+			}
 
-		setNumer0nService(numer0nService);
-	}, [gameData, player1, player2, contractAddress]);
+			console.log("port: ", port);
+			if (!port) {
+				setError("Invalid port");
+				return;
+			}
 
-	useEffect(() => {
-		// Parse query params
-		const queryParams = new URLSearchParams(location.search);
-		const contractAddress = queryParams.get("contract");
-		const secret = queryParams.get("secret");
+			const numer0nService = new Numer0nContractService(wallet);
+			console.log("numer0nService: ", numer0nService);
+			const numer0nClient = new Numer0nClient(numer0nService);
+			console.log("numer0nClient: ", numer0nClient);
 
-		if (!contractAddress) {
-			setError("Invalid contract address");
-			return;
-		}
-		if (!secret) {
-			setError("Invalid secret");
-			return;
-		}
+			await numer0nClient.connect(Number(port));
+			console.log("numer0nClient connected");
+			const _contractAddress = await numer0nClient.getContractAddress();
+			if (!_contractAddress) {
+				setError("Game data not found");
+				return;
+			}
 
-		setContractAddress(contractAddress);
-		setSecretCode(secret);
-
-		if (gameData) {
-			const contractAddr = gameData.getContractAddress();
-			if (contractAddr != contractAddress) {
+			if (contractAddress && _contractAddress !== contractAddress) {
 				gameData.logout();
 			}
-		}
+
+			setSecretCode(secret);
+			setContractAddress(_contractAddress);
+			gameData.setGamePort(Number(port));
+			gameData.setContractAddress(_contractAddress);
+			gameData.setGameCode(secret);
+		};
+
+		fetchGameData();
+
 		// Optionally call a function to validate or initiate a game session
 		// validateAndJoinGame(address, secret);
-	}, [location, gameData]);
+	}, [location, gameData, wallet, numer0nClient, contractAddress]);
 
 	useEffect(() => {
 		if (completeJoin) {
@@ -94,21 +104,38 @@ function InvitePage() {
 		console.log("handleJoinGame....");
 		setLoadingJoin(true);
 
-		if (!gameData) {
-			console.log("Game data not found");
+		if (!gameData || !contractAddress) {
+			console.log("Game data and/or contract address not found");
+			return;
+		}
+
+		if (!wallet) {
+			console.log("PXE Accounts not found");
+			setError("Connect your wallet to join a game");
+			setLoadingJoin(false);
 			return;
 		}
 
 		if (!numer0nService) {
 			console.log("Numer0n service not found");
+			setError("Numer0n service not found");
+			setLoadingJoin(false);
 			return;
 		}
 
-		if (!player1 || !player2) {
-			setError("PXE Accounts not found");
+		if (!numer0nClient) {
+			console.log("Numer0n client not found");
+			setError("Numer0n client not found");
+			setLoadingJoin(false);
 			return;
 		}
 
+		if (!secretCode) {
+			console.log("secret code not found");
+			setError("Secret code not found");
+			setLoadingJoin(false);
+			return;
+		}
 		await numer0nService.joinGame(BigInt(secretCode));
 
 		const fetchedGameData = await numer0nService.getGame();
@@ -120,28 +147,25 @@ function InvitePage() {
 			return;
 		}
 
-		const game = {
-			contractAddress,
-			self: {
-				id: 2,
-				address: player2.getAddress().toString(),
-				isOpponent: false,
-				guesses: [],
-			},
-			opponent: {
-				id: 1,
-				address: player1.getAddress().toString(),
-				isOpponent: true,
-				guesses: [],
-			},
-			gameCode: secretCode,
-			gameStatus: GAME_STATUS.STARTED,
-			round: Number(fetchedGameData.round),
-			isFirst: fetchedGameData.isFirst,
-			winnerId: null,
-		};
+		const opponent = await numer0nClient.getOpponent();
+		if (!opponent) {
+			console.log("opponent not found");
+			return;
+		}
 
-		gameData.setGame(game);
+		// setOpponent(opponent);
+
+		gameData.setSelf({
+			id: 2,
+			address: wallet.getAddress().toString(),
+			guesses: [],
+		});
+		gameData.setOpponent({
+			id: 1,
+			address: opponent.toString(),
+			guesses: [],
+		});
+
 		setLoadingJoin(false);
 		setCompleteJoin(true);
 	};
@@ -187,6 +211,11 @@ function InvitePage() {
 					>
 						Join game
 					</Button>
+					{error && (
+						<Text mt={10} color="red">
+							{error}
+						</Text>
+					)}
 				</Stack>
 			</Container>
 		</>

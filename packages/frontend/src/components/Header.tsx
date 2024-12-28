@@ -2,21 +2,25 @@ import { Group, Text, Button, Anchor } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { usePXE } from "../hooks/usePXE";
 import imgGithub from "../../public/github-mark.png";
-import { Game } from "src/services/game";
+import { Game, GAME_STATUS } from "src/services/game";
 import { useNavigate } from "react-router-dom";
 import { removeItem } from "src/scripts/storage";
 import SetPXEModal from "./Modals/SetPXEModal";
+import { useAccountContext } from "src/contexts/useAccountContext";
+import { useGameContext } from "src/contexts/useGameContext";
 
 export default function Header() {
-	const [gameData, setGameData] = useState<Game | null>(null);
+	const { wallet, connectWallet, disconnectWallet } = useAccountContext();
+	// const [gameData, setGameData] = useState<Game | null>(null);
+	const { gameData, status } = useGameContext();
 	const { pxe } = usePXE();
 	const [isPXEModalOpen, setIsPXEModalOpen] = useState<boolean>(false);
 	const navigate = useNavigate();
 
-	useEffect(() => {
-		const game = new Game();
-		setGameData(game);
-	}, []);
+	// useEffect(() => {
+	// 	const game = new Game();
+	// 	setGameData(game);
+	// }, []);
 
 	useEffect(() => {
 		const check = async () => {
@@ -37,6 +41,14 @@ export default function Header() {
 
 		removeItem("pxeURL");
 		navigate("/");
+	};
+
+	const handleConnectWallet = async () => {
+		await connectWallet();
+	};
+
+	const handleDisconnectWallet = async () => {
+		await disconnectWallet();
 	};
 
 	return (
@@ -69,13 +81,30 @@ export default function Header() {
 				>
 					<img src={imgGithub} alt="github" style={{ width: 25, height: 25 }} />
 				</Anchor>
-				<Button
-					variant="filled"
-					color="teal"
-					onClick={() => setIsPXEModalOpen(true)}
-				>
-					PXE
-				</Button>
+				{status !== GAME_STATUS.STARTED && (
+					<>
+						<Button
+							variant="filled"
+							color="teal"
+							onClick={() => setIsPXEModalOpen(true)}
+						>
+							PXE
+						</Button>
+						{wallet === undefined ? (
+							<Button variant="filled" onClick={handleConnectWallet}>
+								Connect
+							</Button>
+						) : (
+							<Button
+								variant="filled"
+								color="indigo"
+								onClick={handleDisconnectWallet}
+							>
+								Disconnect
+							</Button>
+						)}
+					</>
+				)}
 				<Button
 					onClick={handleLeave}
 					mr={35}

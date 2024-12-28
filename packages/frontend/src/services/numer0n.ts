@@ -4,21 +4,21 @@ import { Numer0nContract } from "../artifacts/Numer0n.js";
 import { Guess } from "src/services/game.js";
 
 export class Numer0nContractService {
-	contractAddress: AztecAddress;
+	contractAddress: AztecAddress | null = null;
 	self: AccountWallet;
-	opponent: AccountWallet | undefined;
 
-	constructor(
-		contractAddress: string,
-		self: AccountWallet,
-		opponent?: AccountWallet
-	) {
-		this.contractAddress = AztecAddress.fromString(contractAddress);
+	constructor(self: AccountWallet, contractAddress?: string) {
 		this.self = self;
-		this.opponent = opponent;
+		if (contractAddress) {
+			this.contractAddress = AztecAddress.fromString(contractAddress);
+		}
 	}
 
 	async getNumer0nContract(player?: AccountWallet): Promise<Numer0nContract> {
+		if (!this.contractAddress) {
+			throw new Error("Contract address is not set");
+		}
+
 		try {
 			const numer0n = await Numer0nContract.at(
 				this.contractAddress,
@@ -101,17 +101,13 @@ export class Numer0nContractService {
 	 * @param guesser The self who made the guess.
 	 * @param guessNum The guessed number.
 	 */
-	async evaluateGuess(guesser: AccountWallet, guessNum: number): Promise<void> {
-		if (!this.opponent) {
-			console.log("Opponent not found");
-			return;
-		}
-		const numer0nContract = await this.getNumer0nContract(this.opponent);
+	async evaluateGuess(guesser: string, guessNum: number): Promise<void> {
+		const numer0nContract = await this.getNumer0nContract();
 		try {
 			await numer0nContract.methods
 				.evaluate_guess(
-					this.opponent.getAddress(),
-					guesser.getAddress(),
+					this.self.getAddress(),
+					AztecAddress.fromString(guesser),
 					guessNum
 				)
 				.send()
@@ -164,15 +160,12 @@ export class Numer0nContractService {
 	 * @param self The address of the self.
 	 * @returns An array of Guess objects.
 	 */
-	async getGuesses(player: AztecAddress): Promise<Guess[]> {
+	async getGuesses(player: string): Promise<Guess[]> {
 		const numer0nContract = await this.getNumer0nContract();
-		console.log(
-			"getGuesses: ",
-			player.toString(),
-			this.contractAddress.toString()
-		);
 
-		const res = await numer0nContract.methods.get_guesses(player).simulate();
+		const res = await numer0nContract.methods
+			.get_guesses(AztecAddress.fromString(player))
+			.simulate();
 		console.log("res: ", res);
 		return res.map((g: any) => ({
 			guess: Number(g.guess_num),

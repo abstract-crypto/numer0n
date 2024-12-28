@@ -1,9 +1,9 @@
-import { AztecAddress, AccountWalletWithSecretKey } from "@aztec/aztec.js";
+import { AztecAddress, AccountWallet } from "@aztec/aztec.js";
 
 import { Numer0nContract } from "../artifacts/Numer0n.js";
 
 export async function createGame(
-	player: AccountWalletWithSecretKey,
+	player: AccountWallet,
 	gameCode: string
 ): Promise<AztecAddress | null> {
 	try {

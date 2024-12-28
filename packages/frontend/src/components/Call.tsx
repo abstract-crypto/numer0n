@@ -2,9 +2,8 @@ import { Button, Center, Stack, PinInput, Text } from "@mantine/core";
 import { useState } from "react";
 import { numLen } from "../scripts/constants";
 import { useGameContext } from "../contexts/useGameContext";
-// import { evaluateGuess, getGuess, guessNumber } from "../scripts";
-import { useAccounts } from "src/hooks/useAccount";
 import GuessNumModal from "./Modals/GuessNumModal";
+import { useAccountContext } from "src/contexts/useAccountContext";
 
 type CallType = {
 	playerId: number;
@@ -14,8 +13,9 @@ type CallType = {
 };
 
 export default function Call(props: CallType) {
-	const { gameData, round, numer0nService } = useGameContext();
-	const { player1, player2 } = useAccounts();
+	const { gameData, round, numer0nService, numer0nClient } = useGameContext();
+	// const { wallet, opponent } = useAccounts();
+	const { wallet } = useAccountContext();
 	const [input, setInput] = useState<string>();
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
 	const [calling, setCalling] = useState<boolean>(false);
@@ -54,6 +54,11 @@ export default function Call(props: CallType) {
 			return;
 		}
 
+		if (!numer0nClient) {
+			console.log("Numer0n client not found");
+			return;
+		}
+
 		if (!nums) return;
 		setErrorMessage("");
 		if (props.isFinished) {
@@ -72,14 +77,23 @@ export default function Call(props: CallType) {
 			console.log(num);
 
 			console.log("playerId :", props.playerId);
-			const player = gameData.getSelf().id == 1 ? player1 : player2;
-			if (!player) return;
+			// const player = gameData.getSelf().id == 1 ? player1 : player2;
+			// if (!player) return;
+
+			if (!wallet) {
+				console.log("wallet not found");
+				return;
+			}
 
 			await numer0nService.guessNumber(num);
-			await numer0nService.evaluateGuess(player, num);
+			console.log("sendEvaluateGuessRequest...");
+			console.log("num: ", num);
+			await numer0nClient.sendEvaluateGuessRequest(num);
+
+			// TODO: loading forever...
 
 			console.log("round: ", round);
-			const guess = await numer0nService.getGuess(player.getAddress(), round);
+			const guess = await numer0nService.getGuess(wallet.getAddress(), round);
 			console.log("call guess: ", guess);
 			// await delay(3);
 			if (guess.guess != 0) {

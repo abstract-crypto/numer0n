@@ -1,37 +1,78 @@
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
-import { AccountWalletWithSecretKey } from "@aztec/aztec.js";
+import {
+	AccountWallet,
+	AccountWalletWithSecretKey,
+	AztecAddress,
+} from "@aztec/aztec.js";
 import { useEffect } from "react";
 import { useState } from "react";
 import { usePXE } from "./usePXE";
+import { ObsidionWalletSDK } from "@obsidion/wallet-sdk";
+import { fallbackOpenPopup } from "./fallback";
+import { Eip1193Account } from "@obsidion/wallet-sdk/eip1193";
 
-export function useAccounts() {
+const OBSIDON_WALLET_URL = "http://localhost:5173";
+
+export function useAccount() {
 	const { pxe } = usePXE();
 	const [deployer, setDeployer] = useState<AccountWalletWithSecretKey | null>(
 		null
 	);
-	const [player1, setPlayer1] = useState<AccountWalletWithSecretKey | null>(
-		null
-	);
-	const [player2, setPlayer2] = useState<AccountWalletWithSecretKey | null>(
-		null
-	);
+
+	const [opponent, setOpponent] = useState<AztecAddress | null>(null);
+	const [sdk, setSdk] = useState<ObsidionWalletSDK | null>(null);
+	const [wallet, setWallet] = useState<Eip1193Account | undefined>(undefined);
+
+	useEffect(() => {
+		if (!pxe) return;
+		if (!sdk) {
+			const sdk = new ObsidionWalletSDK(pxe, {
+				fallbackOpenPopup: fallbackOpenPopup,
+				walletUrl: OBSIDON_WALLET_URL,
+			});
+			setSdk(sdk);
+			return;
+		}
+		const unsubscribe = sdk.accountObservable.subscribe((account) => {
+			setWallet(account);
+		});
+		return () => unsubscribe();
+	}, [pxe, sdk]);
 
 	useEffect(() => {
 		const initAccounts = async () => {
 			if (!pxe) return;
 			const accounts = await getInitialTestAccountsWallets(pxe);
-			setDeployer(accounts[2]);
-			setPlayer1(accounts[0]);
-			setPlayer2(accounts[1]);
+			setDeployer(accounts[0]);
 		};
 		initAccounts();
 	}, [pxe]);
 
-	const getPlayer = (id: number) => {
-		if (id === 1) return player1;
-		if (id === 2) return player2;
-		return null;
+	const connectWallet = async () => {
+		if (!pxe) return;
+
+		const sdk = new ObsidionWalletSDK(pxe, {
+			fallbackOpenPopup: fallbackOpenPopup,
+			walletUrl: OBSIDON_WALLET_URL,
+		});
+		const wallet = await sdk.connect();
+		setWallet(wallet);
+		setSdk(sdk);
 	};
 
-	return { deployer, player1, player2, getPlayer };
+	const disconnectWallet = () => {
+		if (!sdk) return;
+		sdk.disconnect();
+		setWallet(undefined);
+		setSdk(null);
+	};
+
+	return {
+		deployer,
+		wallet,
+		opponent,
+		setOpponent,
+		connectWallet,
+		disconnectWallet,
+	};
 }

@@ -69,6 +69,9 @@ function SetPXEModal(props: SetPXEModalType) {
 				<Text size="lg" mt={10} mb={20}>
 					Set PXE URL
 				</Text>
+				<Text size="sm" mb={20}>
+					Current PXE URL: {pxeURL}
+				</Text>
 				<Center>
 					<TextInput
 						type="url"
