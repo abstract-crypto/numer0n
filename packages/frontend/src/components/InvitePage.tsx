@@ -20,19 +20,22 @@ import { Numer0nClient } from "src/services/numer0nClient";
 function InvitePage() {
 	const {
 		gameData,
-		numer0nService,
 		numer0nClient,
 		contractAddress,
 		setContractAddress,
+		setNumer0nService,
+		setNumer0nClient,
 	} = useGameContext();
 	const navigate = useNavigate();
-	const { wallet, setOpponent } = useAccountContext();
+	const { wallet } = useAccountContext();
 	const location = useLocation();
-	// const [contractAddress, setContractAddress] = useState("");
 	const [secretCode, setSecretCode] = useState("");
+	const [port, setPort] = useState(0);
 	const [error, setError] = useState("");
 	const [loadingJoin, setLoadingJoin] = useState(false);
 	const [completeJoin, setCompleteJoin] = useState(false);
+
+	console.log("numer0nClient in InvitePage: ", numer0nClient);
 
 	useEffect(() => {
 		const fetchGameData = async () => {
@@ -63,35 +66,35 @@ function InvitePage() {
 				return;
 			}
 
-			const numer0nService = new Numer0nContractService(wallet);
-			console.log("numer0nService: ", numer0nService);
-			const numer0nClient = new Numer0nClient(numer0nService);
-			console.log("numer0nClient: ", numer0nClient);
+			if (!numer0nClient) {
+				console.log("Numer0n client not found");
+				return;
+			}
+
+			// const numer0nService = new Numer0nContractService(wallet);
+			// console.log("numer0nService: ", numer0nService);
+			// const numer0nClient = new Numer0nClient(numer0nService);
+			// console.log("numer0nClient: ", numer0nClient);
 
 			await numer0nClient.connect(Number(port));
 			console.log("numer0nClient connected");
-			const _contractAddress = await numer0nClient.getContractAddress();
-			if (!_contractAddress) {
+			const contractAddress = await numer0nClient.getContractAddress();
+
+			if (!contractAddress) {
 				setError("Game data not found");
 				return;
 			}
 
-			if (contractAddress && _contractAddress !== contractAddress) {
-				gameData.logout();
-			}
-
 			setSecretCode(secret);
-			setContractAddress(_contractAddress);
+			setPort(Number(port));
+			setContractAddress(contractAddress);
 			gameData.setGamePort(Number(port));
-			gameData.setContractAddress(_contractAddress);
+			gameData.setContractAddress(contractAddress);
 			gameData.setGameCode(secret);
 		};
 
 		fetchGameData();
-
-		// Optionally call a function to validate or initiate a game session
-		// validateAndJoinGame(address, secret);
-	}, [location, gameData, wallet, numer0nClient, contractAddress]);
+	}, [location, gameData, wallet, numer0nClient]);
 
 	useEffect(() => {
 		if (completeJoin) {
@@ -116,19 +119,25 @@ function InvitePage() {
 			return;
 		}
 
-		if (!numer0nService) {
-			console.log("Numer0n service not found");
-			setError("Numer0n service not found");
-			setLoadingJoin(false);
-			return;
-		}
+		// if (!numer0nService) {
+		// 	console.log("Numer0n service not found");
+		// 	setError("Numer0n service not found");
+		// 	setLoadingJoin(false);
+		// 	return;
+		// }
 
-		if (!numer0nClient) {
-			console.log("Numer0n client not found");
-			setError("Numer0n client not found");
-			setLoadingJoin(false);
-			return;
-		}
+		// if (!numer0nClient) {
+		// 	console.log("Numer0n client not found");
+		// 	setError("Numer0n client not found");
+		// 	setLoadingJoin(false);
+		// 	return;
+		// }
+		const numer0nService = new Numer0nContractService(
+			wallet,
+			gameData,
+			contractAddress
+		);
+		const numer0nClient = new Numer0nClient(numer0nService);
 
 		if (!secretCode) {
 			console.log("secret code not found");
@@ -147,6 +156,8 @@ function InvitePage() {
 			return;
 		}
 
+		// const port = gameData.getGamePort();
+		await numer0nClient.connect(port);
 		const opponent = await numer0nClient.getOpponent();
 		if (!opponent) {
 			console.log("opponent not found");
@@ -165,6 +176,9 @@ function InvitePage() {
 			address: opponent.toString(),
 			guesses: [],
 		});
+
+		setNumer0nService(numer0nService);
+		setNumer0nClient(numer0nClient);
 
 		setLoadingJoin(false);
 		setCompleteJoin(true);
@@ -198,7 +212,7 @@ function InvitePage() {
 				</Box>
 				<Stack align="center" mt={5} mx={10}>
 					<Text size="xl">Game Invitation</Text>
-					<Text size="md">Contract Address: {contractAddress}</Text>
+					{/* <Text size="md">Contract Address: {contractAddress}</Text> */}
 					<Text size="md">Secret Code: {secretCode}</Text>
 					<Button
 						mt={10}

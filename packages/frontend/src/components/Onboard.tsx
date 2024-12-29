@@ -29,7 +29,7 @@ export default function Onboard() {
 		setNumer0nService,
 	} = useGameContext();
 	// const { deployer, wallet } = useAccounts();
-	const { deployer, wallet, setOpponent } = useAccountContext();
+	const { deployer, wallet } = useAccountContext();
 	const navigate = useNavigate();
 
 	const [isGameCreated, setIsGameCreated] = useState<boolean>(false);
@@ -174,6 +174,7 @@ export default function Onboard() {
 
 		const numer0nService = new Numer0nContractService(
 			wallet,
+			gameData,
 			contractAddress.toString()
 		);
 		const numer0nClient = new Numer0nClient(numer0nService);

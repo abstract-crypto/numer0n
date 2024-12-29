@@ -1,5 +1,6 @@
 import { AztecAddress } from "@aztec/aztec.js";
 import { Numer0nContractService } from "./numer0n.js";
+import { Game } from "./game.js";
 
 interface PendingRequest {
 	resolve: (value: any) => void;
@@ -119,7 +120,7 @@ export class Numer0nClient {
 	 * - Finally, the server returns a JSON-RPC response with the result to us.
 	 * - This Promise resolves with a boolean or whatever the opponent sends back.
 	 */
-	public sendEvaluateGuessRequest(guessNum: number): Promise<boolean> {
+	public async sendEvaluateGuessRequest(guessNum: number): Promise<boolean> {
 		console.log("sendEvaluateGuessRequest...");
 		console.log("guessNum: ", guessNum);
 		return new Promise((resolve, reject) => {
@@ -163,6 +164,9 @@ export class Numer0nClient {
 				jsonrpc: "2.0",
 				method: "getOpponent",
 				id: requestId,
+				params: {
+					userId: this.contractService.self.getAddress().toString(),
+				},
 			};
 
 			// Send the JSON-RPC request
@@ -187,6 +191,9 @@ export class Numer0nClient {
 				jsonrpc: "2.0",
 				method: "getContractAddress",
 				id: requestId,
+				params: {
+					userId: this.contractService.self.getAddress().toString(),
+				},
 			};
 
 			// Send the JSON-RPC request
@@ -274,10 +281,10 @@ export class Numer0nClient {
 	 * Called when we receive "receiveGuess" from the server.
 	 * We are effectively the "opponent" being asked to run `evaluate_guess`.
 	 */
-	private async handleReceiveGuess(params: any, evalId: string) {
+	private async handleReceiveGuess(params: any, requestId: string) {
 		console.log("handleReceiveGuess...");
 		console.log("params: ", params);
-		console.log("evalId: ", evalId);
+		console.log("requestId: ", requestId);
 		// const guessNum = params?.guess;
 		const { guess, userId } = params;
 		console.log(`Received guess from opponent: ${guess}`);
@@ -299,8 +306,8 @@ export class Numer0nClient {
 			const msg = {
 				jsonrpc: "2.0",
 				method: "evaluateGuessResult",
+				id: requestId,
 				params: {
-					evalId, // correlate with the pending evaluation
 					result: true, // or false if we found something else
 					userId: this.userId,
 				},
@@ -314,8 +321,8 @@ export class Numer0nClient {
 			const msg = {
 				jsonrpc: "2.0",
 				method: "evaluateGuessResult",
+				id: requestId,
 				params: {
-					evalId,
 					result: false,
 					userId: this.userId,
 				},

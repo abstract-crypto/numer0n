@@ -19,7 +19,6 @@ export function useAccount() {
 		null
 	);
 
-	const [opponent, setOpponent] = useState<AztecAddress | null>(null);
 	const [sdk, setSdk] = useState<ObsidionWalletSDK | null>(null);
 	const [wallet, setWallet] = useState<Eip1193Account | undefined>(undefined);
 
@@ -70,8 +69,6 @@ export function useAccount() {
 	return {
 		deployer,
 		wallet,
-		opponent,
-		setOpponent,
 		connectWallet,
 		disconnectWallet,
 	};

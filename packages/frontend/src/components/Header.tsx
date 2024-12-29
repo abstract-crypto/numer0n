@@ -35,11 +35,12 @@ export default function Header() {
 	}, [pxe]);
 
 	const handleLeave = async () => {
-		if (gameData) {
-			await gameData.logout();
+		if (!gameData) {
+			console.log("Something went wrong. GameData is null.");
+			return;
 		}
-
-		removeItem("pxeURL");
+		await gameData.logout();
+		await gameData.logout();
 		navigate("/");
 	};
 

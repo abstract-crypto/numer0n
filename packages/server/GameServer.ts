@@ -35,10 +35,17 @@ export class GameServer {
 	private wss: WebSocketServer;
 
 	// Key: WebSocket, Value: user connection info
-	private userMap: Map<WebSocket, UserConnection>;
+	// private userMap: Map<WebSocket, UserConnection>;
+	private userMap: Map<string, WebSocket>;
 
 	// Key: evalId, Value: the requesting user's WebSocket
-	private pendingEvaluations: Map<string, WebSocket>;
+	private pendingEvaluations: Map<
+		string,
+		{
+			from: string;
+			ws: WebSocket;
+		}
+	>;
 
 	constructor(gameId: string, contractAddress: string, port: number) {
 		this.game = {
@@ -65,7 +72,7 @@ export class GameServer {
 
 			ws.on("close", () => {
 				console.log(`Client disconnected from Game [${this.game.id}]`);
-				this.userMap.delete(ws);
+				this.userMap.clear();
 			});
 		});
 	}
@@ -99,11 +106,24 @@ export class GameServer {
 				return;
 			}
 
-			// Store the user
-			this.userMap.set(ws, {
-				userId: parsed.userId,
-				socket: ws,
-			});
+			// Check if the userId already exists
+			for (let existingUserId of this.userMap.keys()) {
+				if (existingUserId === parsed.userId) {
+					console.log(
+						`Game [${this.game.id}]: UserId ${parsed.userId} is reconnecting. No action taken.`
+					);
+					return; // Return nothing if the userId already exists
+				} else {
+					// prevent setting more than 3 users
+					if (this.userMap.size >= 2) {
+						this.sendJsonRpcError(ws, null, -32005, "Game is full.");
+						return;
+					}
+				}
+			}
+
+			// Store the user with userId as the key
+			this.userMap.set(parsed.userId, ws);
 
 			console.log(
 				`Game [${this.game.id}]: Registered userId = ${parsed.userId}`
@@ -128,30 +148,17 @@ export class GameServer {
 	 */
 	private handleJsonRpc(ws: WebSocket, request: JsonRpcRequest) {
 		const { method, params, id } = request;
+		const userId = params?.userId;
 
 		// Identify which user is sending this request
-		const userConnection = this.userMap.get(ws);
-		if (!userConnection) {
+		const user = this.userMap.get(userId);
+		if (!user) {
 			// User hasn't done a handshake or is not recognized
 			this.sendJsonRpcError(
 				ws,
 				id,
 				-32000,
 				"User not registered. Perform handshake first."
-			);
-			return;
-		}
-
-		const realUserId = userConnection.userId;
-		const claimedUserId = params?.userId;
-
-		// Check impersonation
-		if (claimedUserId && claimedUserId !== realUserId) {
-			this.sendJsonRpcError(
-				ws,
-				id,
-				-32001,
-				"Impersonation error: userId mismatch."
 			);
 			return;
 		}
@@ -190,12 +197,13 @@ export class GameServer {
 	private handleEvaluateGuess(ws: WebSocket, request: JsonRpcRequest) {
 		const { params, id } = request;
 		const guess = params?.guess;
-		console.log(
-			`Game [${this.game.id}]: User [${params.userId}] guessed: ${guess}`
-		);
+		const userId = params?.userId;
+		const requestId = id as string;
 
-		const opponentWs = this.getOpponentWs(ws);
-		if (!opponentWs) {
+		console.log(`Game [${this.game.id}]: User [${userId}] guessed: ${guess}`);
+
+		const opponent = this.getOpponent(userId);
+		if (!opponent) {
 			console.warn(
 				`Game [${this.game.id}]: No opponent connected for user [${params.userId}]`
 			);
@@ -204,11 +212,14 @@ export class GameServer {
 		}
 
 		// Generate a unique ID for this evaluation request
-		const evalId = this.generateUniqueId();
+		// const evalId = this.generateUniqueId();
 
-		console.log("evalID: ", evalId);
+		// console.log("evalID: ", evalId);
 		// Store the mapping of evalId -> requesting user's WebSocket
-		this.pendingEvaluations.set(evalId, ws);
+		this.pendingEvaluations.set(requestId, {
+			from: userId,
+			ws,
+		});
 
 		// Forward the guess to the opponent via "receiveGuess"
 		// The opponent is expected to call "evaluateGuessResult" with this evalId later.
@@ -217,14 +228,13 @@ export class GameServer {
 			method: "receiveGuess",
 			params: {
 				guess,
-				evalId, // So that B knows which evalId to respond with
-				userId: params.userId, // Could pass A's userId if needed for context
+				userId, // Could pass A's userId if needed for context
 			},
 			// `id` can be same as evalId or separate. Typically, for a "notification"
 			// we might not need an ID, but let's keep it consistent.
-			id: evalId,
+			id: requestId,
 		};
-		opponentWs.send(JSON.stringify(evalRequest));
+		opponent.ws.send(JSON.stringify(evalRequest));
 
 		// Optionally, you can send an immediate "ack" result to user A:
 		// (User A might want to wait for the actual result from B, though.)
@@ -239,15 +249,29 @@ export class GameServer {
 	 * - We send a JSON-RPC response to that user with the result.
 	 */
 	private handleEvaluateGuessResult(ws: WebSocket, request: JsonRpcRequest) {
-		const { params } = request;
-		const returnedEvalId = params?.evalId;
+		const { params, id } = request;
 		const resultBoolean = params?.result; // e.g., true/false
+		const requestId = id as string;
+		const userId = params?.userId;
+		console.log("[handleEvaluateGuessResult] userId: ", userId);
 
-		// Find the original requester
-		const requesterWs = this.pendingEvaluations.get(returnedEvalId);
-		if (!requesterWs) {
+		// Find the original requester by userId
+		const pendingEvalFrom = this.pendingEvaluations.get(requestId);
+		console.log(
+			"[handleEvaluateGuessResult] pendingEval.from: ",
+			pendingEvalFrom?.from
+		);
+
+		if (!pendingEvalFrom) {
 			console.warn(
-				`Game [${this.game.id}]: No pending evaluation found for evalId: ${returnedEvalId}`
+				`Game [${this.game.id}]: No pending evaluation found for evalId: ${pendingEvalFrom}`
+			);
+			return;
+		}
+
+		if (pendingEvalFrom.from === userId) {
+			console.warn(
+				`Game [${this.game.id}]: User [${userId}] is trying to evaluate their own guess.`
 			);
 			return;
 		}
@@ -256,23 +280,27 @@ export class GameServer {
 		const evalResponse: JsonRpcResponse = {
 			jsonrpc: "2.0",
 			result: resultBoolean, // the boolean result
-			id: returnedEvalId, // match the evalId so the client can resolve the Promise
+			id: requestId, // match the evalId so the client can resolve the Promise
 		};
-		requesterWs.send(JSON.stringify(evalResponse));
+
+		pendingEvalFrom.ws.send(JSON.stringify(evalResponse));
 
 		// Remove from pending
-		this.pendingEvaluations.delete(returnedEvalId);
-
-		// Optionally, also send a confirmation to B if needed
+		this.pendingEvaluations.delete(requestId);
 	}
 
 	/**
 	 * Returns the "other" player's WebSocket (assuming a 2-player game).
 	 */
-	private getOpponentWs(currentWs: WebSocket): WebSocket | undefined {
-		for (let [ws] of this.userMap.entries()) {
-			if (ws !== currentWs) {
-				return ws;
+	private getOpponent(currentUserId: string):
+		| {
+				ws: WebSocket;
+				userId: string;
+		  }
+		| undefined {
+		for (let [userId, ws] of this.userMap.entries()) {
+			if (userId !== currentUserId) {
+				return { ws, userId };
 			}
 		}
 		return undefined;
@@ -293,31 +321,25 @@ export class GameServer {
 	 * - Sends the list of user IDs back to the requesting client.
 	 */
 	private handleGetOpponentUserId(ws: WebSocket, request: JsonRpcRequest) {
-		const { id } = request;
-		const opponentWs = this.getOpponentWs(ws);
-		if (!opponentWs) {
+		const { id, params } = request;
+		const opponent = this.getOpponent(params?.userId);
+		if (!opponent) {
 			this.sendJsonRpcError(ws, id, -32003, "No opponent found.");
 			return;
 		}
 
-		const opponentUserId = this.userMap.get(opponentWs)?.userId;
-		if (!opponentUserId) {
-			this.sendJsonRpcError(ws, id, -32003, "No user IDs found.");
-			return;
-		}
-
-		this.sendJsonRpcResult(ws, id, opponentUserId);
+		this.sendJsonRpcResult(ws, id, opponent.userId);
 	}
 
 	private handleGetContractAddress(ws: WebSocket, request: JsonRpcRequest) {
-		const { id } = request;
-		const userConnection = this.userMap.get(ws);
-		if (!userConnection) {
+		const { id, params } = request;
+		const user = this.userMap.get(params?.userId);
+		if (!user) {
 			this.sendJsonRpcError(ws, id, -32004, "User not registered.");
 			return;
 		}
 		console.log(
-			`Game [${this.game.id}]: User [${userConnection.userId}] requested contract address`
+			`Game [${this.game.id}]: User [${params?.userId}] requested contract address`
 		);
 		this.sendJsonRpcResult(ws, id, this.game.contractAddress);
 	}

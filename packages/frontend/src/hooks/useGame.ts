@@ -62,38 +62,49 @@ export const useGame = () => {
 				console.log("game not found: ", gameData);
 				return;
 			}
-			if (!gameData.getContractAddress() && !contractAddress) {
-				console.log(
-					"contract address not found: ",
-					gameData.getContractAddress(),
-					contractAddress
-				);
-				return;
-			}
 
 			if (!wallet) {
 				console.log("wallet not found: ", wallet);
 				return;
 			}
 
+			const contractAddr = contractAddress ?? gameData.getContractAddress();
+			console.log("contractAddr: ", contractAddr);
+
 			const numer0nService = new Numer0nContractService(
 				wallet,
-				gameData.getContractAddress() ?? contractAddress
+				gameData,
+				contractAddr
 			);
 			setNumer0nService(numer0nService);
+		};
 
+		initNumer0nService();
+	}, [gameData, wallet, contractAddress]);
+
+	useEffect(() => {
+		const initNumer0nClient = async () => {
+			if (!gameData) {
+				console.log("gameData not found");
+				return;
+			}
+			if (!numer0nService) {
+				console.log("numer0nService not found");
+				return;
+			}
 			try {
-				const port = gameData.getGamePort();
 				const numer0nClient = new Numer0nClient(numer0nService);
-				await numer0nClient.connect(port);
+				const port = gameData.getGamePort();
+				if (port) {
+					await numer0nClient.connect(port);
+				}
 				setNumer0nClient(numer0nClient);
 			} catch (error) {
 				console.error("Error connecting to numer0n client: ", error);
 			}
 		};
-
-		initNumer0nService();
-	}, [gameData, wallet, contractAddress]);
+		initNumer0nClient();
+	}, [numer0nService]);
 
 	useEffect(() => {
 		if (!numer0nService) {
@@ -108,7 +119,7 @@ export const useGame = () => {
 	}, [numer0nService, wallet]);
 
 	const updateStates = async () => {
-		if (!numer0nService) {
+		if (!numer0nService || !numer0nService.contractAddress) {
 			console.log("numer0nService not found");
 			return;
 		}
@@ -236,7 +247,7 @@ export const useGame = () => {
 			return;
 		}
 
-		if (!numer0nService) {
+		if (!numer0nService || !numer0nService.contractAddress) {
 			console.log("numer0nService not found");
 			return;
 		}
@@ -251,9 +262,11 @@ export const useGame = () => {
 		const self = gameData.getSelf().address;
 		const opponent = gameData.getOpponent().address;
 		if (!self || !opponent) {
-			console.log("wallet or opponent not found");
+			console.log("self or opponent not found");
 			return;
 		}
+		console.log("self: ", self);
+		console.log("opponent: ", opponent);
 
 		const player = isSelf ? self : opponent;
 
@@ -261,6 +274,8 @@ export const useGame = () => {
 			console.log("player not found");
 			return;
 		}
+
+		console.log("player: ", player);
 
 		const round = await numer0nService.getRound();
 		setRound(Number(round));

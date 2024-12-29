@@ -11,15 +11,8 @@ import GameResultModal from "./Modals/GameResultModal";
 import { GAME_STATUS } from "src/services/game";
 
 export default function Game() {
-	const {
-		gameData,
-		isFirst,
-		round,
-		status,
-		gameResult,
-		numer0nService,
-		updateStates,
-	} = useGameContext();
+	const { gameData, isFirst, round, status, gameResult, numer0nService } =
+		useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [IsTurnNotificationModalOpen, setOpenTurnNotificationModal] =
 		useState(false);
@@ -193,7 +186,6 @@ export default function Game() {
 							playerId={gameData ? gameData.getSelf().id : 0}
 							isMyTurn={isMyTurn}
 							isFinished={status == GAME_STATUS.FINISHED}
-							updateStates={updateStates}
 						/>
 					</Box>
 				</Box>

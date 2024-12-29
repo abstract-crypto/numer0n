@@ -9,11 +9,11 @@ type CallType = {
 	playerId: number;
 	isMyTurn: boolean;
 	isFinished: boolean;
-	updateStates: () => Promise<void>;
 };
 
 export default function Call(props: CallType) {
-	const { gameData, round, numer0nService, numer0nClient } = useGameContext();
+	const { gameData, round, numer0nService, numer0nClient, updateStates } =
+		useGameContext();
 	// const { wallet, opponent } = useAccounts();
 	const { wallet } = useAccountContext();
 	const [input, setInput] = useState<string>();
@@ -99,7 +99,7 @@ export default function Call(props: CallType) {
 			if (guess.guess != 0) {
 				setGuess([guess.guess, guess.eat, guess.bite]);
 				openModal();
-				await props.updateStates();
+				await updateStates();
 			}
 		} finally {
 			setCalling(false);
