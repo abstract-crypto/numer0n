@@ -71,10 +71,29 @@ export class GameServer {
 			});
 
 			ws.on("close", () => {
-				console.log(`Client disconnected from Game [${this.game.id}]`);
-				this.userMap.clear();
+				const disconnectedUserId = this.getUserIdBySocket(ws);
+				if (disconnectedUserId) {
+					this.userMap.delete(disconnectedUserId);
+					console.log(
+						`Game [${this.game.id}]: User [${disconnectedUserId}] disconnected.`
+					);
+				} else {
+					console.log(`Game [${this.game.id}]: Unknown user disconnected.`);
+				}
 			});
 		});
+	}
+
+	/**
+	 * Helper method to find userId by WebSocket.
+	 */
+	private getUserIdBySocket(ws: WebSocket): string | undefined {
+		for (const [userId, socket] of this.userMap.entries()) {
+			if (socket === ws) {
+				return userId;
+			}
+		}
+		return undefined;
 	}
 
 	/**
@@ -205,7 +224,7 @@ export class GameServer {
 		const opponent = this.getOpponent(userId);
 		if (!opponent) {
 			console.warn(
-				`Game [${this.game.id}]: No opponent connected for user [${params.userId}]`
+				`Game [${this.game.id}]: No opponent connected for user [${params.userId}]:Opponent: ${opponent}`
 			);
 			this.sendJsonRpcError(ws, id, -32002, "No opponent connected.");
 			return;
@@ -256,20 +275,20 @@ export class GameServer {
 		console.log("[handleEvaluateGuessResult] userId: ", userId);
 
 		// Find the original requester by userId
-		const pendingEvalFrom = this.pendingEvaluations.get(requestId);
+		const userFrom = this.pendingEvaluations.get(requestId);
 		console.log(
 			"[handleEvaluateGuessResult] pendingEval.from: ",
-			pendingEvalFrom?.from
+			userFrom?.from
 		);
 
-		if (!pendingEvalFrom) {
+		if (!userFrom) {
 			console.warn(
-				`Game [${this.game.id}]: No pending evaluation found for evalId: ${pendingEvalFrom}`
+				`Game [${this.game.id}]: No pending evaluation found for evalId: ${requestId}`
 			);
 			return;
 		}
 
-		if (pendingEvalFrom.from === userId) {
+		if (userFrom.from === userId) {
 			console.warn(
 				`Game [${this.game.id}]: User [${userId}] is trying to evaluate their own guess.`
 			);
@@ -283,7 +302,7 @@ export class GameServer {
 			id: requestId, // match the evalId so the client can resolve the Promise
 		};
 
-		pendingEvalFrom.ws.send(JSON.stringify(evalResponse));
+		userFrom.ws.send(JSON.stringify(evalResponse));
 
 		// Remove from pending
 		this.pendingEvaluations.delete(requestId);

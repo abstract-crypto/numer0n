@@ -15,7 +15,7 @@
     "@aztec/noir-contracts.js": "0.67.0",
     "@mantine/core": "^7.3.2",
     "@mantine/hooks": "^7.3.2",
-    "@obsidion/wallet-sdk": "github:obsidionlabs/wallet-sdk",
+    "@obsidion/wallet-sdk": "github:obsidionlabs/wallet-sdk#sessionkey",
     "patch-packages": "^1.0.0",
     "postinstall": "^0.7.5",
     "react": "^18.2.0",

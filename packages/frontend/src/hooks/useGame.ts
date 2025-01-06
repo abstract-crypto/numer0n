@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { stringfyAndPaddZero } from "src/scripts/utils";
 import { Game, GAME_STATUS } from "src/services/game";
-import type { AccountWallet } from "@aztec/aztec.js";
+import {
+	AztecAddress,
+	type AccountWallet,
+	type FunctionSelector,
+} from "@aztec/aztec.js";
 import { Numer0nContractService } from "src/services/numer0n";
 import { Numer0nClient } from "src/services/numer0nClient";
 import { useAccountContext } from "src/contexts/useAccountContext";
@@ -312,6 +316,35 @@ export const useGame = () => {
 		return resultRow;
 	};
 
+	const addSessionKeys = async () => {
+		if (!numer0nService || !wallet) {
+			console.log("numer0nService or wallet not found");
+			return;
+		}
+
+		const numer0nContract = await numer0nService.getNumer0nContract();
+
+		const addresses = [numer0nContract.address, numer0nContract.address];
+		const selectors: FunctionSelector[] = [];
+		const functionNames: string[] = [];
+
+		const guessNumberMethod = numer0nContract.methods
+			.guess_num(wallet.getAddress(), 1)
+			.request();
+
+		selectors.push(guessNumberMethod.selector);
+		functionNames.push(guessNumberMethod.name);
+
+		const evaluateGuessMethod = numer0nContract.methods
+			.evaluate_guess(wallet.getAddress(), AztecAddress.ZERO, 1)
+			.request();
+
+		selectors.push(evaluateGuessMethod.selector);
+		functionNames.push(evaluateGuessMethod.name);
+
+		await wallet.addSessionKeys(addresses, selectors, functionNames);
+	};
+
 	return {
 		gameData,
 		numer0nService,
@@ -328,5 +361,6 @@ export const useGame = () => {
 		loadHistry,
 		setNumer0nService,
 		setNumer0nClient,
+		addSessionKeys,
 	};
 };

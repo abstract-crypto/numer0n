@@ -1,9 +1,5 @@
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
-import {
-	AccountWallet,
-	AccountWalletWithSecretKey,
-	AztecAddress,
-} from "@aztec/aztec.js";
+import { AccountWalletWithSecretKey } from "@aztec/aztec.js";
 import { useEffect } from "react";
 import { useState } from "react";
 import { usePXE } from "./usePXE";

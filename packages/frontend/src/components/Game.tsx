@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Box, Container, Group, SimpleGrid, Text } from "@mantine/core";
+import { Box, Button, Container, Group, SimpleGrid, Text } from "@mantine/core";
 import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
 // import Item from "./Item";
@@ -11,8 +11,15 @@ import GameResultModal from "./Modals/GameResultModal";
 import { GAME_STATUS } from "src/services/game";
 
 export default function Game() {
-	const { gameData, isFirst, round, status, gameResult, numer0nService } =
-		useGameContext();
+	const {
+		gameData,
+		isFirst,
+		round,
+		status,
+		gameResult,
+		numer0nService,
+		addSessionKeys,
+	} = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [IsTurnNotificationModalOpen, setOpenTurnNotificationModal] =
 		useState(false);
@@ -23,6 +30,8 @@ export default function Game() {
 		null
 	);
 	const [isMyTurn, setIsMyTurn] = useState(false);
+
+	const [showSessionKeyButton, setShowSessionKeyButton] = useState(false);
 
 	// Add secret num
 	useEffect(() => {
@@ -102,6 +111,29 @@ export default function Game() {
 		}
 	}, [gameResult]);
 
+	useEffect(() => {
+		let parentOrigin = null;
+
+		// try {
+		// 	if (window !== window.parent) {
+		// 		parentOrigin = new URL(window.parent.location.href).origin;
+		// 	}
+		// } catch (error) {
+		// 	console.warn("Unable to access parent origin:", error);
+		// }
+
+		// console.log("parentOrigin: ", parentOrigin);
+
+		// if (parentOrigin === "http://localhost:5173") {
+		if (window !== window.parent) {
+			console.log("parent exists");
+			setShowSessionKeyButton(true);
+		} else {
+			console.log("child or different parent");
+			setShowSessionKeyButton(false);
+		}
+	}, []);
+
 	return (
 		<>
 			<Container>
@@ -114,8 +146,8 @@ export default function Game() {
 					}}
 				>
 					<Group
-						grow
-						ml={10}
+						align="center"
+						mx={5}
 						pb={10}
 						style={{
 							borderBottomStyle: "solid",
@@ -148,6 +180,17 @@ export default function Game() {
 									Round: {round}
 								</Text>
 							</>
+						)}
+						{showSessionKeyButton && (
+							<Box>
+								<Button
+									size="xs"
+									variant="filled"
+									onClick={() => addSessionKeys()}
+								>
+									Enable Session Mode
+								</Button>
+							</Box>
 						)}
 					</Group>
 					<SimpleGrid cols={2}>
