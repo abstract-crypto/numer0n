@@ -1,11 +1,4 @@
 import { WebSocket, WebSocketServer } from "ws";
-
-// Helper type to track each user's connection info
-interface UserConnection {
-	userId: string; // The hex string provided by the user
-	socket: WebSocket; // The actual WebSocket
-}
-
 interface Game {
 	id: string;
 	contractAddress: string;
