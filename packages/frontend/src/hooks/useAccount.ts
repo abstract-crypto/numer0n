@@ -7,7 +7,10 @@ import { ObsidionWalletSDK } from "@obsidion/wallet-sdk";
 import { fallbackOpenPopup } from "./fallback";
 import { Eip1193Account } from "@obsidion/wallet-sdk/eip1193";
 
-const OBSIDON_WALLET_URL = "http://localhost:5173";
+const OBSIDON_WALLET_URL =
+	import.meta.env.VITE_ENV == "LOCAL"
+		? "http://localhost:5173"
+		: "https://obsidion-wallet-demo.netlify.app";
 
 export function useAccount() {
 	const { pxe, pxeURL, setPXEURL } = usePXE();
