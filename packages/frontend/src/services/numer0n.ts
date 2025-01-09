@@ -169,12 +169,16 @@ export class Numer0nContractService {
 	 * @returns An array of Guess objects.
 	 */
 	async getGuesses(player: string): Promise<Guess[]> {
+		console.log("getGuesses...");
 		const numer0nContract = await this.getNumer0nContract();
+		console.log("numer0nContract: ", numer0nContract.address.toString());
+		console.log("player: ", player);
 
 		const res = await numer0nContract.methods
 			.get_guesses(AztecAddress.fromString(player))
 			.simulate();
 		console.log("res: ", res);
+
 		return res.map((g: any) => ({
 			guess: Number(g.guess_num),
 			eat: Number(g.eat),

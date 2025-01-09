@@ -10,7 +10,7 @@ import { Eip1193Account } from "@obsidion/wallet-sdk/eip1193";
 const OBSIDON_WALLET_URL = "http://localhost:5173";
 
 export function useAccount() {
-	const { pxe } = usePXE();
+	const { pxe, pxeURL, setPXEURL } = usePXE();
 	const [deployer, setDeployer] = useState<AccountWalletWithSecretKey | null>(
 		null
 	);
@@ -63,6 +63,9 @@ export function useAccount() {
 	};
 
 	return {
+		pxe,
+		pxeURL,
+		setPXEURL,
 		deployer,
 		wallet,
 		connectWallet,

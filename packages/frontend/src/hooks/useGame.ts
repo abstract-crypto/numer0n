@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { stringfyAndPaddZero } from "src/scripts/utils";
 import { Game, GAME_STATUS } from "src/services/game";
-import {
-	AztecAddress,
-	type AccountWallet,
-	type FunctionSelector,
-} from "@aztec/aztec.js";
+import { AztecAddress, type FunctionSelector } from "@aztec/aztec.js";
 import { Numer0nContractService } from "src/services/numer0n";
 import { Numer0nClient } from "src/services/numer0nClient";
 import { useAccountContext } from "src/contexts/useAccountContext";
@@ -27,8 +23,7 @@ export const emptyRows: ResultRow[] = Array(5).fill(emptyRow);
 type GameResult = "WIN" | "LOSE" | "DRAW";
 
 export const useGame = () => {
-	// const { deployer, wallet, opponent } = useAccounts();
-	const { deployer, wallet } = useAccountContext();
+	const { wallet } = useAccountContext();
 	const [gameData, setGameData] = useState<Game | null>(null);
 	const [numer0nService, setNumer0nService] =
 		useState<Numer0nContractService | null>(null);
@@ -345,6 +340,15 @@ export const useGame = () => {
 		await wallet.addSessionKeys(addresses, selectors, functionNames);
 	};
 
+	const leaveGame = async () => {
+		if (!gameData) {
+			console.log("gameData not found");
+			return;
+		}
+		await gameData.logout();
+		setGameData(null);
+	};
+
 	return {
 		gameData,
 		numer0nService,
@@ -362,5 +366,6 @@ export const useGame = () => {
 		setNumer0nService,
 		setNumer0nClient,
 		addSessionKeys,
+		leaveGame,
 	};
 };

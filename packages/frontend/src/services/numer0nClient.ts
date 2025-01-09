@@ -1,6 +1,5 @@
 import { AztecAddress } from "@aztec/aztec.js";
 import { Numer0nContractService } from "./numer0n.js";
-import { Game } from "./game.js";
 
 interface PendingRequest {
 	resolve: (value: any) => void;
@@ -26,7 +25,10 @@ export class Numer0nClient {
 	 */
 	constructor(private contractService: Numer0nContractService) {
 		this.userId = contractService.self.getAddress().toString();
-		this.httpServerUrl = "http://localhost:3000";
+		this.httpServerUrl =
+			import.meta.env.VITE_ENV === "LOCAL"
+				? "http://localhost:3000"
+				: "https://numer0n.onrender.com";
 	}
 
 	/**

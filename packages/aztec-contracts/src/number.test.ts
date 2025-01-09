@@ -161,209 +161,209 @@ describe("E2E Numer0n", () => {
 			);
 		});
 
-		it.skip("check high & low result", async () => {
-			const ret1 = await numer0n.methods.get_high_and_low(145n).simulate();
-			expect(ret1).toBe(112n);
+		// 	it.skip("check high & low result", async () => {
+		// 		const ret1 = await numer0n.methods.get_high_and_low(145n).simulate();
+		// 		expect(ret1).toBe(112n);
 
-			const ret2 = await numer0n.methods.get_high_and_low(365n).simulate();
-			expect(ret2).toBe(122n);
+		// 		const ret2 = await numer0n.methods.get_high_and_low(365n).simulate();
+		// 		expect(ret2).toBe(122n);
 
-			const ret3 = await numer0n.methods.get_high_and_low(361n).simulate();
-			expect(ret3).toBe(121n);
+		// 		const ret3 = await numer0n.methods.get_high_and_low(361n).simulate();
+		// 		expect(ret3).toBe(121n);
 
-			const ret4 = await numer0n.methods.get_high_and_low(851n).simulate();
-			expect(ret4).toBe(221n);
+		// 		const ret4 = await numer0n.methods.get_high_and_low(851n).simulate();
+		// 		expect(ret4).toBe(221n);
 
-			const ret5 = await numer0n.methods.get_high_and_low(612n).simulate();
-			expect(ret5).toBe(211n);
+		// 		const ret5 = await numer0n.methods.get_high_and_low(612n).simulate();
+		// 		expect(ret5).toBe(211n);
 
-			const ret6 = await numer0n.methods.get_high_and_low(948n).simulate();
-			expect(ret6).toBe(212n);
+		// 		const ret6 = await numer0n.methods.get_high_and_low(948n).simulate();
+		// 		expect(ret6).toBe(212n);
 
-			// with zeros.
-			const ret7 = await numer0n.methods.get_high_and_low(56n).simulate();
-			expect(ret7).toBe(122n);
+		// 		// with zeros.
+		// 		const ret7 = await numer0n.methods.get_high_and_low(56n).simulate();
+		// 		expect(ret7).toBe(122n);
 
-			const ret8 = await numer0n.methods.get_high_and_low(109n).simulate();
-			expect(ret8).toBe(112n);
-		});
+		// 		const ret8 = await numer0n.methods.get_high_and_low(109n).simulate();
+		// 		expect(ret8).toBe(112n);
+		// 	});
 
-		it.skip("check high & low result", async () => {
-			const ret1 = await numer0n.methods.get_high_and_low(145n).simulate();
-			expect(ret1).toBe(112n);
+		// 	it.skip("check high & low result", async () => {
+		// 		const ret1 = await numer0n.methods.get_high_and_low(145n).simulate();
+		// 		expect(ret1).toBe(112n);
 
-			const ret2 = await numer0n.methods.get_high_and_low(365n).simulate();
-			expect(ret2).toBe(122n);
+		// 		const ret2 = await numer0n.methods.get_high_and_low(365n).simulate();
+		// 		expect(ret2).toBe(122n);
 
-			const ret3 = await numer0n.methods.get_high_and_low(361n).simulate();
-			expect(ret3).toBe(121n);
+		// 		const ret3 = await numer0n.methods.get_high_and_low(361n).simulate();
+		// 		expect(ret3).toBe(121n);
 
-			const ret4 = await numer0n.methods.get_high_and_low(851n).simulate();
-			expect(ret4).toBe(221n);
+		// 		const ret4 = await numer0n.methods.get_high_and_low(851n).simulate();
+		// 		expect(ret4).toBe(221n);
 
-			const ret5 = await numer0n.methods.get_high_and_low(612n).simulate();
-			expect(ret5).toBe(211n);
+		// 		const ret5 = await numer0n.methods.get_high_and_low(612n).simulate();
+		// 		expect(ret5).toBe(211n);
 
-			const ret6 = await numer0n.methods.get_high_and_low(948n).simulate();
-			expect(ret6).toBe(212n);
+		// 		const ret6 = await numer0n.methods.get_high_and_low(948n).simulate();
+		// 		expect(ret6).toBe(212n);
 
-			// with zeros.
-			const ret7 = await numer0n.methods.get_high_and_low(56n).simulate();
-			expect(ret7).toBe(122n);
+		// 		// with zeros.
+		// 		const ret7 = await numer0n.methods.get_high_and_low(56n).simulate();
+		// 		expect(ret7).toBe(122n);
 
-			const ret8 = await numer0n.methods.get_high_and_low(109n).simulate();
-			expect(ret8).toBe(112n);
-		});
+		// 		const ret8 = await numer0n.methods.get_high_and_low(109n).simulate();
+		// 		expect(ret8).toBe(112n);
+		// 	});
 
-		it.skip("check slash ", async () => {
-			const ret1 = await numer0n.methods.get_slash(145n).simulate();
-			expect(ret1).toBe(4n);
+		// 	it.skip("check slash ", async () => {
+		// 		const ret1 = await numer0n.methods.get_slash(145n).simulate();
+		// 		expect(ret1).toBe(4n);
 
-			const ret2 = await numer0n.methods.get_slash(365n).simulate();
-			expect(ret2).toBe(3n);
+		// 		const ret2 = await numer0n.methods.get_slash(365n).simulate();
+		// 		expect(ret2).toBe(3n);
 
-			const ret3 = await numer0n.methods.get_slash(361n).simulate();
-			expect(ret3).toBe(5n);
+		// 		const ret3 = await numer0n.methods.get_slash(361n).simulate();
+		// 		expect(ret3).toBe(5n);
 
-			const ret4 = await numer0n.methods.get_slash(851n).simulate();
-			expect(ret4).toBe(7n);
+		// 		const ret4 = await numer0n.methods.get_slash(851n).simulate();
+		// 		expect(ret4).toBe(7n);
 
-			const ret5 = await numer0n.methods.get_slash(612n).simulate();
-			expect(ret5).toBe(5n);
+		// 		const ret5 = await numer0n.methods.get_slash(612n).simulate();
+		// 		expect(ret5).toBe(5n);
 
-			const ret6 = await numer0n.methods.get_slash(948n).simulate();
-			expect(ret6).toBe(5n);
+		// 		const ret6 = await numer0n.methods.get_slash(948n).simulate();
+		// 		expect(ret6).toBe(5n);
 
-			// with zeros.
-			const ret7 = await numer0n.methods.get_slash(56n).simulate();
-			expect(ret7).toBe(6n);
+		// 		// with zeros.
+		// 		const ret7 = await numer0n.methods.get_slash(56n).simulate();
+		// 		expect(ret7).toBe(6n);
 
-			const ret8 = await numer0n.methods.get_slash(109n).simulate();
-			expect(ret8).toBe(9n);
-		});
+		// 		const ret8 = await numer0n.methods.get_slash(109n).simulate();
+		// 		expect(ret8).toBe(9n);
+		// 	});
 
-		it.skip("check target ", async () => {
-			const ret1 = await numer0n.methods.get_target(145n, 1n).simulate();
-			expect(ret1).toBe(13n);
+		// 	it.skip("check target ", async () => {
+		// 		const ret1 = await numer0n.methods.get_target(145n, 1n).simulate();
+		// 		expect(ret1).toBe(13n);
 
-			const ret2 = await numer0n.methods.get_target(365n, 6n).simulate();
-			expect(ret2).toBe(62n);
+		// 		const ret2 = await numer0n.methods.get_target(365n, 6n).simulate();
+		// 		expect(ret2).toBe(62n);
 
-			const ret3 = await numer0n.methods.get_target(361n, 1n).simulate();
-			expect(ret3).toBe(11n);
+		// 		const ret3 = await numer0n.methods.get_target(361n, 1n).simulate();
+		// 		expect(ret3).toBe(11n);
 
-			const ret4 = await numer0n.methods.get_target(851n, 0n).simulate();
-			expect(ret4).toBe(0n);
+		// 		const ret4 = await numer0n.methods.get_target(851n, 0n).simulate();
+		// 		expect(ret4).toBe(0n);
 
-			const ret5 = await numer0n.methods.get_target(612n, 2n).simulate();
-			expect(ret5).toBe(21n);
+		// 		const ret5 = await numer0n.methods.get_target(612n, 2n).simulate();
+		// 		expect(ret5).toBe(21n);
 
-			const ret6 = await numer0n.methods.get_target(948n, 321n).simulate();
-			expect(ret6).toBe(3210n);
+		// 		const ret6 = await numer0n.methods.get_target(948n, 321n).simulate();
+		// 		expect(ret6).toBe(3210n);
 
-			// with zeros.
-			const ret7 = await numer0n.methods.get_target(56n, 0n).simulate();
-			expect(ret7).toBe(3n);
+		// 		// with zeros.
+		// 		const ret7 = await numer0n.methods.get_target(56n, 0n).simulate();
+		// 		expect(ret7).toBe(3n);
 
-			const ret8 = await numer0n.methods.get_target(109n, 9n).simulate();
-			expect(ret8).toBe(91n);
-		});
+		// 		const ret8 = await numer0n.methods.get_target(109n, 9n).simulate();
+		// 		expect(ret8).toBe(91n);
+		// 	});
 
-		it.skip("check change", async () => {
-			let ret;
-			ret = await numer0n.methods
-				.is_valid_new_changed_num(145n, 145n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 	it.skip("check change", async () => {
+		// 		let ret;
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_changed_num(145n, 145n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_changed_num(365n, 326n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_changed_num(365n, 326n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_changed_num(361n, 472n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_changed_num(361n, 472n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			// with zeros.
-			ret = await numer0n.methods
-				.is_valid_new_changed_num(56n, 136n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		// with zeros.
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_changed_num(56n, 136n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_changed_num(109n, 209n)
-				.simulate();
-			expect(ret).toBe(true);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_changed_num(109n, 209n)
+		// 			.simulate();
+		// 		expect(ret).toBe(true);
 
-			ret = await numer0n.methods
-				.is_valid_new_changed_num(851n, 861n)
-				.simulate();
-			expect(ret).toBe(true);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_changed_num(851n, 861n)
+		// 			.simulate();
+		// 		expect(ret).toBe(true);
 
-			ret = await numer0n.methods.is_valid_new_changed_num(41n, 51n).simulate();
-			expect(ret).toBe(true);
-		});
+		// 		ret = await numer0n.methods.is_valid_new_changed_num(41n, 51n).simulate();
+		// 		expect(ret).toBe(true);
+		// 	});
 
-		it("check shuffle", async () => {
-			let ret;
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(145n, 365n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 	it("check shuffle", async () => {
+		// 		let ret;
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(145n, 365n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(365n, 361n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(365n, 361n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(361n, 851n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(361n, 851n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(851n, 612n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(851n, 612n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(612n, 948n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(612n, 948n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(948n, 56n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(948n, 56n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			// with zeros.
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(56n, 109n)
-				.simulate();
-			expect(ret).toBe(false);
+		// 		// with zeros.
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(56n, 109n)
+		// 			.simulate();
+		// 		expect(ret).toBe(false);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(293n, 329n)
-				.simulate();
-			console.log("ret: ", ret);
-			expect(ret).toBe(true);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(293n, 329n)
+		// 			.simulate();
+		// 		console.log("ret: ", ret);
+		// 		expect(ret).toBe(true);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(109n, 901n)
-				.simulate();
-			expect(ret).toBe(true);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(109n, 901n)
+		// 			.simulate();
+		// 		expect(ret).toBe(true);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(851n, 518n)
-				.simulate();
-			expect(ret).toBe(true);
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(851n, 518n)
+		// 			.simulate();
+		// 		expect(ret).toBe(true);
 
-			ret = await numer0n.methods
-				.is_valid_new_shuffled_num(41n, 401n)
-				.simulate();
-			expect(ret).toBe(true);
-		});
+		// 		ret = await numer0n.methods
+		// 			.is_valid_new_shuffled_num(41n, 401n)
+		// 			.simulate();
+		// 		expect(ret).toBe(true);
+		// 	});
 	});
 });

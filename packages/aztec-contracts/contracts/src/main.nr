@@ -4,7 +4,7 @@ mod types;
 mod num_lib;
 
 // VERSION=0.67.0 aztec-nargo compile
-// rm codegenCache.json && VERSION=0.67.0 aztec codegen ./ -o ../../src/artifacts
+// rm codegenCache.json && VERSION=0.67.0 aztec codegen ./ -o ../src/artifacts
 
 #[aztec]
 contract Numer0n {
@@ -80,6 +80,7 @@ contract Numer0n {
 
     #[public]
     fn guess_num(player: AztecAddress, guess_num: u32) {
+        debug_log("guess_num...");
         assert(context.msg_sender().to_field() == player.to_field(), "[guess_num] sender must be player");
         assert(storage.game.read().status == GAME_STATUS_STARTED, "[guess_num] game hasn't been started yet");
         num_lib::is_valid_nums(guess_num);
@@ -103,6 +104,8 @@ contract Numer0n {
     // guesser: who guesses, player's opponent
     #[private]
     fn evaluate_guess(guessed: AztecAddress, guesser: AztecAddress, guess_num: u32) {
+        debug_log("evaluate_guess...");
+        debug_log_format("guess_num: ", [guess_num as Field]);
         // replaced if-else with assert as it leads to an errror at get_note()
         let sender = context.msg_sender();
         assert(guessed == sender, "sender should be guessed");
@@ -114,6 +117,8 @@ contract Numer0n {
         let mut secret_num = secret_num_emission.note.secret_num;
         
         let result = num_lib::check_result(guess_num, secret_num);
+        debug_log_format("result: ", [result[0] as Field]);
+        debug_log_format("result: ", [result[1] as Field]);
 
         Numer0n::at(context.this_address())._validate_guess(guessed, guesser, guess_num, result[0], result[1]).enqueue(&mut context);
     }
@@ -279,7 +284,9 @@ contract Numer0n {
         assert(game.status == GAME_STATUS_STARTED, "game hasn't been started yet");
         let current_round = game.round;
 
+        debug_log_format("guess_num: ", [_guess_num as Field]);
         let mut guess = storage.guesses.at(current_round).at(_guesser).read();
+        debug_log_format("guess.guess_num: ", [guess.guess_num as Field]);
         assert(_guess_num == guess.guess_num, "invalid guess_num");
 
         guess.eat = _eat;

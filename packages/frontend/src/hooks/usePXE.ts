@@ -5,7 +5,7 @@ import { createPXEClient, PXE } from "@aztec/aztec.js";
 const DEFAULT_PXE_URL =
 	import.meta.env.VITE_ENV === "LOCAL"
 		? "http://localhost:8080"
-		: "https://cdc2-185-115-4-23.ngrok-free.app";
+		: "http://pxe.obsidion.xyz:8080";
 
 // TODO: when pxe changed, many updates/reset are needed probably around local storage
 export function usePXE() {

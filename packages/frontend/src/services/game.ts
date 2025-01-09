@@ -163,7 +163,6 @@ export class Game {
 	}
 
 	async logout() {
-		this.gameData = emptyGameData;
 		removeItem(Game.STORAGE_KEY);
 	}
 }

@@ -9,7 +9,7 @@ import {
 	TextInput,
 } from "@mantine/core";
 import { useState } from "react";
-import { usePXE } from "src/hooks/usePXE";
+import { useAccountContext } from "src/contexts/useAccountContext";
 
 type SetPXEModalType = {
 	isOpen: boolean;
@@ -17,7 +17,7 @@ type SetPXEModalType = {
 };
 
 function SetPXEModal(props: SetPXEModalType) {
-	const { pxeURL, setPXEURL } = usePXE();
+	const { pxeURL, setPXEURL } = useAccountContext();
 	const [input, setInput] = useState<string>("");
 	const [error, setError] = useState<string | null>(null);
 

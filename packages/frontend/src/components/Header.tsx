@@ -1,26 +1,17 @@
 import { Group, Text, Button, Anchor } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { usePXE } from "../hooks/usePXE";
 import imgGithub from "../../public/github-mark.png";
-import { Game, GAME_STATUS } from "src/services/game";
+import { GAME_STATUS } from "src/services/game";
 import { useNavigate } from "react-router-dom";
-import { removeItem } from "src/scripts/storage";
 import SetPXEModal from "./Modals/SetPXEModal";
 import { useAccountContext } from "src/contexts/useAccountContext";
 import { useGameContext } from "src/contexts/useGameContext";
 
 export default function Header() {
-	const { wallet, connectWallet, disconnectWallet } = useAccountContext();
-	// const [gameData, setGameData] = useState<Game | null>(null);
-	const { gameData, status } = useGameContext();
-	const { pxe } = usePXE();
+	const { pxe, wallet, connectWallet, disconnectWallet } = useAccountContext();
+	const { gameData, status, leaveGame } = useGameContext();
 	const [isPXEModalOpen, setIsPXEModalOpen] = useState<boolean>(false);
 	const navigate = useNavigate();
-
-	// useEffect(() => {
-	// 	const game = new Game();
-	// 	setGameData(game);
-	// }, []);
 
 	useEffect(() => {
 		const check = async () => {
@@ -35,12 +26,7 @@ export default function Header() {
 	}, [pxe]);
 
 	const handleLeave = async () => {
-		if (!gameData) {
-			console.log("Something went wrong. GameData is null.");
-			return;
-		}
-		await gameData.logout();
-		await gameData.logout();
+		await leaveGame();
 		navigate("/");
 	};
 
