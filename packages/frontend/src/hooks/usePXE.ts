@@ -1,17 +1,24 @@
 import { useEffect, useState } from "react";
 import { createPXEClient, PXE } from "@aztec/aztec.js";
-// import { SANDBOX_URL } from "src/scripts/constants";
 
-const DEFAULT_PXE_URL =
-	import.meta.env.VITE_ENV === "LOCAL"
-		? "http://localhost:8080"
-		: "http://pxe.obsidion.xyz:8080";
+export const getDefaultPXEURL = () => {
+	if (import.meta.env.VITE_PXE_URL) {
+		return import.meta.env.VITE_PXE_URL;
+	} else {
+		if (import.meta.env.VITE_ENV === "LOCAL") {
+			return "http://localhost:8080/";
+		} else if (import.meta.env.VITE_ENV === "REMOTE") {
+			return "https://pxe.obsidion.xyz:8080";
+		} else {
+			throw new Error("Invalid PXE URL environment variable");
+		}
+	}
+};
 
-// TODO: when pxe changed, many updates/reset are needed probably around local storage
 export function usePXE() {
 	const [pxeURL, setPXEURL] = useState<string>(() => {
 		// Initialize pxeURL from localStorage if available
-		return localStorage.getItem("pxeURL") || DEFAULT_PXE_URL;
+		return localStorage.getItem("pxeURL") || getDefaultPXEURL();
 	});
 
 	// console.log("pxeURL", pxeURL);
