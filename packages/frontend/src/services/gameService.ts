@@ -59,13 +59,13 @@ const emptyGameData: GameData = {
 	gamePort: 0,
 };
 
-export class Game {
+export class GameService {
 	private static STORAGE_KEY = "numer0n_game_data";
 
 	private gameData: GameData;
 
 	constructor() {
-		const storedData = getItem(Game.STORAGE_KEY);
+		const storedData = getItem(GameService.STORAGE_KEY);
 		if (storedData) {
 			this.gameData = storedData;
 		} else {
@@ -74,14 +74,14 @@ export class Game {
 	}
 
 	public loadGameData() {
-		const storedData = getItem(Game.STORAGE_KEY);
+		const storedData = getItem(GameService.STORAGE_KEY);
 		if (storedData) {
 			this.gameData = storedData;
 		}
 	}
 
 	private saveToLocalStorage() {
-		setItem(Game.STORAGE_KEY, this.gameData);
+		setItem(GameService.STORAGE_KEY, this.gameData);
 	}
 
 	// Getters
@@ -163,6 +163,6 @@ export class Game {
 	}
 
 	async logout() {
-		removeItem(Game.STORAGE_KEY);
+		removeItem(GameService.STORAGE_KEY);
 	}
 }

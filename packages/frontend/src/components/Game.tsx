@@ -4,20 +4,20 @@ import PlayerBoard from "./PlayerBoard";
 import Call from "./Call";
 // import Item from "./Item";
 import AddNumMoodal from "./Modals/AddNumModal";
-import { useGameContext } from "../contexts/useGameContext";
+import { useGameContext } from "../contexts";
 import CallHistory from "./CallHistory";
 import TurnNotificationModal from "./Modals/TurnNotificationModal";
 import GameResultModal from "./Modals/GameResultModal";
-import { GAME_STATUS } from "src/services/game";
+import { GAME_STATUS } from "src/services";
 
 export default function Game() {
 	const {
-		gameData,
+		gameService,
 		isFirst,
 		round,
 		status,
 		gameResult,
-		numer0nService,
+		numer0nContractService,
 		addSessionKeys,
 	} = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
@@ -36,23 +36,23 @@ export default function Game() {
 	// Add secret num
 	useEffect(() => {
 		(async () => {
-			if (!gameData) {
+			if (!gameService) {
 				console.log("Game data not found");
 				return;
 			}
-			if (gameData.getSecretNumber() == undefined) {
+			if (gameService.getSecretNumber() == undefined) {
 				setOpenAddNumModal(true);
 			}
 		})();
-	}, [gameData]);
+	}, [gameService]);
 
 	useEffect(() => {
 		(async () => {
-			if (!gameData) {
+			if (!gameService) {
 				console.log("Game data not found");
 				return;
 			}
-			const _gameData = gameData.getGameData();
+			const _gameData = gameService.getGameData();
 
 			if (round == 0) {
 				return;
@@ -80,7 +80,7 @@ export default function Game() {
 				setOpenTurnNotificationModal(false);
 			}
 		})();
-	}, [gameData, isMyTurn, round, status, isFirst]);
+	}, [gameService, isMyTurn, round, status, isFirst]);
 
 	// const usedItem = () => {
 	// 	setIsItemUsed(true);
@@ -90,12 +90,12 @@ export default function Game() {
 		const checkSecretNum = async () => {
 			if (
 				opponentSecretNum === null &&
-				gameData &&
-				numer0nService &&
+				gameService &&
+				numer0nContractService &&
 				status === GAME_STATUS.FINISHED
 			) {
-				const secretNum = await numer0nService.getSecretNum(
-					gameData.getOpponent().address!
+				const secretNum = await numer0nContractService.getSecretNum(
+					gameService.getOpponent().address!
 				);
 				console.log("secretNum in checkSecretNum: ", secretNum);
 				setOpponentSecretNum(secretNum);
@@ -103,7 +103,7 @@ export default function Game() {
 		};
 
 		checkSecretNum();
-	}, [opponentSecretNum, gameData, numer0nService, status]);
+	}, [opponentSecretNum, gameService, numer0nContractService, status]);
 
 	useEffect(() => {
 		if (gameResult !== null) {
@@ -114,17 +114,6 @@ export default function Game() {
 	useEffect(() => {
 		let parentOrigin = null;
 
-		// try {
-		// 	if (window !== window.parent) {
-		// 		parentOrigin = new URL(window.parent.location.href).origin;
-		// 	}
-		// } catch (error) {
-		// 	console.warn("Unable to access parent origin:", error);
-		// }
-
-		// console.log("parentOrigin: ", parentOrigin);
-
-		// if (parentOrigin === "http://localhost:5173") {
 		if (window !== window.parent) {
 			console.log("parent exists");
 			setShowSessionKeyButton(true);
@@ -156,7 +145,7 @@ export default function Game() {
 						}}
 					>
 						<Text style={{ flex: 1, textAlign: "center" }}>
-							Game ID: {gameData ? gameData.getGameCode() : ""}
+							Game ID: {gameService ? gameService.getGameCode() : ""}
 						</Text>
 						{(status == GAME_STATUS.STARTED ||
 							status == GAME_STATUS.FINISHED) && (
@@ -226,7 +215,7 @@ export default function Game() {
 					</SimpleGrid> */}
 					<Box mx={30} mt={50} pb={100}>
 						<Call
-							playerId={gameData ? gameData.getSelf().id : 0}
+							playerId={gameService ? gameService.getSelf().id : 0}
 							isMyTurn={isMyTurn}
 							isFinished={status == GAME_STATUS.FINISHED}
 						/>

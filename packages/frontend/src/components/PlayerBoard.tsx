@@ -1,7 +1,6 @@
 import { Text, Stack } from "@mantine/core";
 import Player from "./Player";
-import { useState, useEffect } from "react";
-import { useGameContext } from "../contexts/useGameContext";
+import { useGameContext } from "../contexts";
 import { shortenAddress } from "../scripts/utils";
 
 type PlayerBoardType = {
@@ -10,9 +9,9 @@ type PlayerBoardType = {
 };
 
 export default function PlayerBoard(props: PlayerBoardType) {
-	const { gameData } = useGameContext();
+	const { gameService } = useGameContext();
 
-	if (!gameData) return null;
+	if (!gameService) return null;
 
 	return (
 		<>
@@ -20,7 +19,7 @@ export default function PlayerBoard(props: PlayerBoardType) {
 				{props.isSelf ? (
 					<Text mt={5} ml={10}>
 						{" "}
-						You : {shortenAddress(gameData.getSelf().address)}{" "}
+						You : {shortenAddress(gameService.getSelf().address)}{" "}
 					</Text>
 				) : (
 					<Text
@@ -29,7 +28,7 @@ export default function PlayerBoard(props: PlayerBoardType) {
 						style={{ display: "flex", justifyContent: "flex-end" }}
 					>
 						{" "}
-						Opp : {shortenAddress(gameData.getOpponent().address)}{" "}
+						Opp : {shortenAddress(gameService.getOpponent().address)}{" "}
 					</Text>
 				)}
 				<Player

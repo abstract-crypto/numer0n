@@ -9,7 +9,7 @@ import {
 	PinInput,
 } from "@mantine/core";
 import { useState } from "react";
-import { useGameContext } from "../../contexts/useGameContext";
+import { useGameContext } from "../../contexts";
 
 type AddNumModalType = {
 	isOpen: boolean;
@@ -17,7 +17,7 @@ type AddNumModalType = {
 };
 
 function AddNumMoodal(props: AddNumModalType) {
-	const { gameData, numer0nService } = useGameContext();
+	const { gameService, numer0nService } = useGameContext();
 
 	const [input, setInput] = useState<string>("");
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
@@ -44,7 +44,7 @@ function AddNumMoodal(props: AddNumModalType) {
 	}
 
 	async function handleConfirm() {
-		if (!gameData) {
+		if (!gameService) {
 			console.log("Game data not found");
 			return;
 		}
@@ -61,7 +61,7 @@ function AddNumMoodal(props: AddNumModalType) {
 			console.log(num);
 
 			await numer0nService.addNumber(BigInt(num));
-			gameData.setSecretNumber(num);
+			gameService.setSecretNumber(num);
 
 			props.onClose();
 		} finally {

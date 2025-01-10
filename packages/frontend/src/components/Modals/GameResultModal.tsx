@@ -1,8 +1,6 @@
 import { Modal, Text, Box, Button } from "@mantine/core";
-import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { useGameContext } from "src/contexts/useGameContext";
-import { GAME_STATUS } from "src/services/game";
+import { useGameContext } from "src/contexts";
 
 type GameResultModalType = {
 	isOpen: boolean;
@@ -13,41 +11,15 @@ type GameResultModalType = {
 
 function GameResultModal(props: GameResultModalType) {
 	const navigate = useNavigate();
-	const { gameData, numer0nService, status } = useGameContext();
-	// const [secretNum, setSecretNum] = useState<number | null>(null);
-
-	// if (props.gameResult === null) {
-	// 	return null;
-	// }
-
+	const { gameService } = useGameContext();
 	const handlePlayAgain = async () => {
 		props.onClose();
-		if (gameData) {
-			await gameData.logout();
+		if (gameService) {
+			await gameService.logout();
 		}
 
 		navigate("/");
 	};
-
-	// useEffect(() => {
-	// 	const checkSecretNum = async () => {
-	// 		if (
-	// 			props.isOpen &&
-	// 			secretNum === null &&
-	// 			gameData &&
-	// 			numer0nService &&
-	// 			status === GAME_STATUS.FINISHED
-	// 		) {
-	// 			const secretNum = await numer0nService.getSecretNum(
-	// 				gameData.getOpponent().address!
-	// 			);
-	// 			console.log("secretNum in checkSecretNum: ", secretNum);
-	// 			setSecretNum(secretNum);
-	// 		}
-	// 	};
-
-	// 	checkSecretNum();
-	// }, [props.isOpen, secretNum, gameData, numer0nService, status]);
 
 	return (
 		<Modal size="sm" opened={props.isOpen} onClose={props.onClose} centered>

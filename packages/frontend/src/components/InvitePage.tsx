@@ -1,25 +1,17 @@
 // InvitePage.jsx
-import {
-	Box,
-	Button,
-	Container,
-	Group,
-	Stack,
-	Text,
-	TextInput,
-} from "@mantine/core";
-import React, { useEffect, useState } from "react";
+import { Box, Button, Container, Stack, Text } from "@mantine/core";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useAccountContext } from "src/contexts/useAccountContext";
-import { useGameContext } from "src/contexts/useGameContext";
-// import { getGame, joinGame } from "src/scripts";
-import { Game, GAME_STATUS, GameData, GameStatus } from "src/services/game";
-import { Numer0nContractService } from "src/services/numer0n";
-import { Numer0nClient } from "src/services/numer0nClient";
+import { useAccountContext, useGameContext } from "src/contexts";
+import {
+	Numer0nContractService,
+	Numer0nClient,
+	GAME_STATUS,
+} from "src/services";
 
 function InvitePage() {
 	const {
-		gameData,
+		gameService,
 		numer0nClient,
 		contractAddress,
 		setContractAddress,
@@ -39,7 +31,7 @@ function InvitePage() {
 
 	useEffect(() => {
 		const fetchGameData = async () => {
-			if (!gameData) {
+			if (!gameService) {
 				console.log("Game data not found");
 				return;
 			}
@@ -71,11 +63,6 @@ function InvitePage() {
 				return;
 			}
 
-			// const numer0nService = new Numer0nContractService(wallet);
-			// console.log("numer0nService: ", numer0nService);
-			// const numer0nClient = new Numer0nClient(numer0nService);
-			// console.log("numer0nClient: ", numer0nClient);
-
 			await numer0nClient.connect(Number(port));
 			console.log("numer0nClient connected");
 			const contractAddress = await numer0nClient.getContractAddress();
@@ -88,13 +75,13 @@ function InvitePage() {
 			setSecretCode(secret);
 			setPort(Number(port));
 			setContractAddress(contractAddress);
-			gameData.setGamePort(Number(port));
-			gameData.setContractAddress(contractAddress);
-			gameData.setGameCode(secret);
+			gameService.setGamePort(Number(port));
+			gameService.setContractAddress(contractAddress);
+			gameService.setGameCode(secret);
 		};
 
 		fetchGameData();
-	}, [location, gameData, wallet, numer0nClient]);
+	}, [location, gameService, wallet, numer0nClient]);
 
 	useEffect(() => {
 		if (completeJoin) {
@@ -107,7 +94,7 @@ function InvitePage() {
 		console.log("handleJoinGame....");
 		setLoadingJoin(true);
 
-		if (!gameData || !contractAddress) {
+		if (!gameService || !contractAddress) {
 			console.log("Game data and/or contract address not found");
 			return;
 		}
@@ -134,7 +121,7 @@ function InvitePage() {
 		// }
 		const numer0nService = new Numer0nContractService(
 			wallet,
-			gameData,
+			gameService,
 			contractAddress
 		);
 		const numer0nClient = new Numer0nClient(numer0nService);
@@ -156,7 +143,7 @@ function InvitePage() {
 			return;
 		}
 
-		// const port = gameData.getGamePort();
+		// const port = gameService.getGamePort();
 		await numer0nClient.connect(port);
 		const opponent = await numer0nClient.getOpponent();
 		if (!opponent) {
@@ -166,12 +153,12 @@ function InvitePage() {
 
 		// setOpponent(opponent);
 
-		gameData.setSelf({
+		gameService.setSelf({
 			id: 2,
 			address: wallet.getAddress().toString(),
 			guesses: [],
 		});
-		gameData.setOpponent({
+		gameService.setOpponent({
 			id: 1,
 			address: opponent.toString(),
 			guesses: [],

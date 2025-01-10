@@ -1,5 +1,5 @@
 import { AztecAddress } from "@aztec/aztec.js";
-import { Numer0nContractService } from "./numer0n.js";
+import { Numer0nContractService } from "./numer0nContractService.js";
 
 interface PendingRequest {
 	resolve: (value: any) => void;
@@ -19,16 +19,15 @@ export class Numer0nClient {
 	private userId: string;
 
 	/**
-	 * @param serverUrl  WebSocket URL of your game server (e.g. "ws://localhost:8080")
-	 * @param userId     Hex string used to identify this client to the server
 	 * @param contractService  An instance of Numer0nContractService for local contract calls
 	 */
 	constructor(private contractService: Numer0nContractService) {
 		this.userId = contractService.self.getAddress().toString();
 		this.httpServerUrl =
-			import.meta.env.VITE_ENV === "LOCAL"
+			import.meta.env.VITE_SERVER_URL ||
+			(import.meta.env.VITE_ENV === "LOCAL"
 				? "http://localhost:3000"
-				: "https://numer0n.onrender.com";
+				: "https://5f14-109-172-176-130.ngrok-free.app");
 	}
 
 	/**

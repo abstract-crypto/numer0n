@@ -1,6 +1,6 @@
 import { Loader, Center, Table } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { useGameContext } from "src/contexts/useGameContext";
+import { useGameContext } from "src/contexts";
 import { emptyRows, ResultRow } from "src/hooks/useGame";
 
 type CallHistoryType = {
@@ -8,7 +8,7 @@ type CallHistoryType = {
 };
 
 export default function CallHistory(props: CallHistoryType) {
-	const { gameData, resultRowsSelf, resultRowsOpponent, loadHistry } =
+	const { gameService, resultRowsSelf, resultRowsOpponent, loadHistry } =
 		useGameContext();
 	const [resultRows, setResultRows] = useState<ResultRow[]>(emptyRows);
 
@@ -19,13 +19,13 @@ export default function CallHistory(props: CallHistoryType) {
 	// load from local storage After refresh
 	useEffect(() => {
 		(async () => {
-			if (!gameData) {
+			if (!gameService) {
 				console.log("game not found");
 				return [];
 			}
 			await loadHistry(props.isSelf, true);
 		})();
-	}, [props.isSelf, gameData]);
+	}, [props.isSelf, gameService]);
 
 	const getCellStyle = (zero: boolean) => {
 		return {

@@ -9,7 +9,7 @@ import {
 	TextInput,
 } from "@mantine/core";
 import { useState } from "react";
-import { useAccountContext } from "src/contexts/useAccountContext";
+import { useAccountContext } from "src/contexts";
 
 type SetPXEModalType = {
 	isOpen: boolean;

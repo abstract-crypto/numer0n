@@ -1,15 +1,14 @@
 import { Group, Text, Button, Anchor } from "@mantine/core";
 import { useEffect, useState } from "react";
 import imgGithub from "../../public/github-mark.png";
-import { GAME_STATUS } from "src/services/game";
+import { GAME_STATUS } from "src/services";
 import { useNavigate } from "react-router-dom";
 import SetPXEModal from "./Modals/SetPXEModal";
-import { useAccountContext } from "src/contexts/useAccountContext";
-import { useGameContext } from "src/contexts/useGameContext";
+import { useAccountContext, useGameContext } from "src/contexts";
 
 export default function Header() {
 	const { pxe, wallet, connectWallet, disconnectWallet } = useAccountContext();
-	const { gameData, status, leaveGame } = useGameContext();
+	const { status, leaveGame } = useGameContext();
 	const [isPXEModalOpen, setIsPXEModalOpen] = useState<boolean>(false);
 	const navigate = useNavigate();
 

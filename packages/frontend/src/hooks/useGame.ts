@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { stringfyAndPaddZero } from "src/scripts/utils";
-import { Game, GAME_STATUS } from "src/services/game";
 import { AztecAddress, type FunctionSelector } from "@aztec/aztec.js";
-import { Numer0nContractService } from "src/services/numer0n";
-import { Numer0nClient } from "src/services/numer0nClient";
 import { useAccountContext } from "src/contexts/useAccountContext";
-
+import {
+	GameService,
+	GAME_STATUS,
+	Guess,
+	Numer0nContractService,
+	Numer0nClient,
+} from "src/services";
 export type ResultRow = {
 	guess: string;
 	eat: string;
@@ -24,15 +27,15 @@ type GameResult = "WIN" | "LOSE" | "DRAW";
 
 export const useGame = () => {
 	const { wallet } = useAccountContext();
-	const [gameData, setGameData] = useState<Game | null>(null);
-	const [numer0nService, setNumer0nService] =
+	const [gameService, setGameService] = useState<GameService | null>(null);
+	const [numer0nContractService, setNumer0nService] =
 		useState<Numer0nContractService | null>(null);
 	const [numer0nClient, setNumer0nClient] = useState<Numer0nClient | null>(
 		null
 	);
 
 	console.log("wallet in useGame: ", wallet);
-	console.log("numer0nService in useGame: ", numer0nService);
+	console.log("numer0nContractService in useGame: ", numer0nContractService);
 	console.log("numer0nClient in useGame: ", numer0nClient);
 
 	const [resultRowsSelf, setResultRowsSelf] = useState<ResultRow[]>(emptyRows);
@@ -51,14 +54,13 @@ export const useGame = () => {
 	const [contractAddress, setContractAddress] = useState<string | null>(null);
 
 	useEffect(() => {
-		const gameInstance = new Game();
-		setGameData(gameInstance);
+		setGameService(new GameService());
 	}, []);
 
 	useEffect(() => {
 		const initNumer0nService = async () => {
-			if (!gameData) {
-				console.log("game not found: ", gameData);
+			if (!gameService) {
+				console.log("game not found: ", gameService);
 				return;
 			}
 
@@ -67,33 +69,33 @@ export const useGame = () => {
 				return;
 			}
 
-			const contractAddr = contractAddress ?? gameData.getContractAddress();
+			const contractAddr = contractAddress ?? gameService.getContractAddress();
 			console.log("contractAddr: ", contractAddr);
 
-			const numer0nService = new Numer0nContractService(
+			const numer0nContractService = new Numer0nContractService(
 				wallet,
-				gameData,
+				gameService,
 				contractAddr
 			);
-			setNumer0nService(numer0nService);
+			setNumer0nService(numer0nContractService);
 		};
 
 		initNumer0nService();
-	}, [gameData, wallet, contractAddress]);
+	}, [gameService, wallet, contractAddress]);
 
 	useEffect(() => {
 		const initNumer0nClient = async () => {
-			if (!gameData) {
-				console.log("gameData not found");
+			if (!gameService) {
+				console.log("gameService not found");
 				return;
 			}
-			if (!numer0nService) {
-				console.log("numer0nService not found");
+			if (!numer0nContractService) {
+				console.log("numer0nContractService not found");
 				return;
 			}
 			try {
-				const numer0nClient = new Numer0nClient(numer0nService);
-				const port = gameData.getGamePort();
+				const numer0nClient = new Numer0nClient(numer0nContractService);
+				const port = gameService.getGamePort();
 				if (port) {
 					await numer0nClient.connect(port);
 				}
@@ -103,11 +105,11 @@ export const useGame = () => {
 			}
 		};
 		initNumer0nClient();
-	}, [numer0nService]);
+	}, [numer0nContractService]);
 
 	useEffect(() => {
-		if (!numer0nService) {
-			console.log("numer0nService not found");
+		if (!numer0nContractService) {
+			console.log("numer0nContractService not found");
 			return;
 		}
 
@@ -115,15 +117,15 @@ export const useGame = () => {
 			console.log("wallet not found");
 			return;
 		}
-	}, [numer0nService, wallet]);
+	}, [numer0nContractService, wallet]);
 
 	const updateStates = async () => {
-		if (!numer0nService || !numer0nService.contractAddress) {
-			console.log("numer0nService not found");
+		if (!numer0nContractService || !numer0nContractService.contractAddress) {
+			console.log("numer0nContractService not found");
 			return;
 		}
 
-		const game = await numer0nService.getGame();
+		const game = await numer0nContractService.getGame();
 		console.log("game: ", game);
 		setIsFirst(game.is_first);
 		setRound(Number(game.round));
@@ -133,8 +135,8 @@ export const useGame = () => {
 		await loadHistry(true, false);
 		await loadHistry(false, false);
 
-		if (Number(game.status) == GAME_STATUS.FINISHED && gameData) {
-			const playerId = gameData.getSelf().id;
+		if (Number(game.status) == GAME_STATUS.FINISHED && gameService) {
+			const playerId = gameService.getSelf().id;
 			setGameResult(
 				Number(game.winner_id) == playerId
 					? "WIN"
@@ -147,7 +149,7 @@ export const useGame = () => {
 
 	useEffect(() => {
 		const intervalId = setInterval(async () => {
-			if (!gameData) {
+			if (!gameService) {
 				console.log("game not found");
 				return;
 			}
@@ -157,7 +159,7 @@ export const useGame = () => {
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, [numer0nService, gameData]);
+	}, [numer0nContractService, gameService]);
 
 	useEffect(() => {
 		const intervalId = setInterval(async () => {
@@ -208,12 +210,12 @@ export const useGame = () => {
 	const getHistryFromLocalStorage = async (
 		isSelf: boolean
 	): Promise<ResultRow[]> => {
-		if (!gameData) {
+		if (!gameService) {
 			console.log("game not found");
 			return [];
 		}
 
-		const history = gameData.getGuesses(isSelf).map((g) => ({
+		const history = gameService.getGuesses(isSelf).map((g: Guess) => ({
 			guess: g.guess === 0 ? "" : g.guess.toString(),
 			eat: g.eat === 0 && g.bite === 0 ? "" : g.eat.toString(),
 			bite: g.eat === 0 && g.bite === 0 ? "" : g.bite.toString(),
@@ -226,7 +228,7 @@ export const useGame = () => {
 		isSelf: boolean,
 		resultRows: ResultRow[]
 	) => {
-		if (!gameData) {
+		if (!gameService) {
 			console.log("game not found");
 			return;
 		}
@@ -237,29 +239,22 @@ export const useGame = () => {
 			bite: Number(r.bite),
 		}));
 
-		gameData.setGuesses(isSelf, guesses);
+		gameService.setGuesses(isSelf, guesses);
 	};
 
 	const getHistry = async (isSelf: boolean) => {
-		if (!gameData) {
+		if (!gameService) {
 			console.log("game not found");
 			return;
 		}
 
-		if (!numer0nService || !numer0nService.contractAddress) {
-			console.log("numer0nService not found");
+		if (!numer0nContractService || !numer0nContractService.contractAddress) {
+			console.log("numer0nContractService not found");
 			return;
 		}
 
-		// const self = gameData.getSelf().id == 1 ? player1 : player2;
-		// // console.log("self: ", self?.getAddress());
-		// const opponent = gameData.getOpponent().id == 1 ? player1 : player2;
-		// // console.log("opponent: ", opponent?.getAddress());
-		// const player = isSelf ? self : opponent;
-		// // console.log("player: ", player?.getAddress());
-
-		const self = gameData.getSelf().address;
-		const opponent = gameData.getOpponent().address;
+		const self = gameService.getSelf().address;
+		const opponent = gameService.getOpponent().address;
 		if (!self || !opponent) {
 			console.log("self or opponent not found");
 			return;
@@ -276,7 +271,7 @@ export const useGame = () => {
 
 		console.log("player: ", player);
 
-		const round = await numer0nService.getRound();
+		const round = await numer0nContractService.getRound();
 		setRound(Number(round));
 
 		if (round == 0n) {
@@ -286,7 +281,7 @@ export const useGame = () => {
 
 		let resultRow: ResultRow[] = [];
 
-		const guesses = await numer0nService.getGuesses(player);
+		const guesses = await numer0nContractService.getGuesses(player);
 
 		console.log(
 			"guesses: ",
@@ -312,12 +307,12 @@ export const useGame = () => {
 	};
 
 	const addSessionKeys = async () => {
-		if (!numer0nService || !wallet) {
-			console.log("numer0nService or wallet not found");
+		if (!numer0nContractService || !wallet) {
+			console.log("numer0nContractService or wallet not found");
 			return;
 		}
 
-		const numer0nContract = await numer0nService.getNumer0nContract();
+		const numer0nContract = await numer0nContractService.getNumer0nContract();
 
 		const addresses = [numer0nContract.address, numer0nContract.address];
 		const selectors: FunctionSelector[] = [];
@@ -341,17 +336,17 @@ export const useGame = () => {
 	};
 
 	const leaveGame = async () => {
-		if (!gameData) {
-			console.log("gameData not found");
+		if (!gameService) {
+			console.log("gameService not found");
 			return;
 		}
-		await gameData.logout();
-		setGameData(null);
+		await gameService.logout();
+		setGameService(null);
 	};
 
 	return {
-		gameData,
-		numer0nService,
+		gameService,
+		numer0nContractService,
 		numer0nClient,
 		isFirst,
 		round,

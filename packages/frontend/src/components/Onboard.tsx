@@ -9,26 +9,23 @@ import {
 	CopyButton,
 	Anchor,
 } from "@mantine/core";
-import { useGameContext } from "../contexts/useGameContext";
-import { GAME_STATUS } from "src/services/game";
+import { useGameContext, useAccountContext } from "../contexts";
 import { useNavigate } from "react-router-dom";
 import { createGame } from "src/scripts";
-import { useAccountContext } from "src/contexts/useAccountContext";
-import { Numer0nContractService } from "src/services/numer0n";
-import { Numer0nClient } from "src/services/numer0nClient";
+import {
+	Numer0nContractService,
+	Numer0nClient,
+	GAME_STATUS,
+} from "src/services";
 
 export default function Onboard() {
-	// const [gameData, setGameData] = useState<Game | null>(null);
-	// const [numer0nService, setNumer0nService] =
-	// 	useState<Numer0nContractService | null>(null);
 	const {
-		gameData,
+		gameService,
 		numer0nService,
 		numer0nClient,
 		setNumer0nClient,
 		setNumer0nService,
 	} = useGameContext();
-	// const { deployer, wallet } = useAccounts();
 	const { deployer, wallet } = useAccountContext();
 	const navigate = useNavigate();
 
@@ -39,33 +36,9 @@ export default function Onboard() {
 
 	const [error, setError] = useState<string | null>(null);
 
-	// useEffect(() => {
-	// 	const gameInstance = new Game();
-	// 	setGameData(gameInstance);
-	// }, []);
-
-	// useEffect(() => {
-	// 	if (!gameData || !gameData.getContractAddress()) {
-	// 		console.log("game not found");
-	// 		return;
-	// 	}
-
-	// 	if (!wallet) {
-	// 		console.log("Players not found");
-	// 		return;
-	// 	}
-
-	// 	const numer0nService = new Numer0nContractService(
-	// 		gameData.getContractAddress(),
-	// 		wallet
-	// 	);
-
-	// 	setNumer0nService(numer0nService);
-	// }, [gameData, wallet]);
-
 	useEffect(() => {
 		const loadOnboard = async () => {
-			if (!gameData) {
+			if (!gameService) {
 				console.log("Game data not found");
 				return;
 			}
@@ -75,8 +48,8 @@ export default function Onboard() {
 				return;
 			}
 
-			const gameCode = gameData.getGameCode();
-			const contractAddress = gameData.getContractAddress();
+			const gameCode = gameService.getGameCode();
+			const contractAddress = gameService.getContractAddress();
 			if (!gameCode || !contractAddress) {
 				console.log("Game code or contract address not found");
 				return;
@@ -103,28 +76,23 @@ export default function Onboard() {
 					return;
 				}
 
-				gameData.setOpponent({
+				gameService.setOpponent({
 					id: 2,
 					address: opponent.toString(),
 					guesses: [],
 				});
-
-				// setOpponent(opponent);
 
 				setPlayersSet(true);
 			}
 		};
 		const intervalId = setInterval(loadOnboard, 5000);
 		return () => clearInterval(intervalId);
-	}, [gameData, invitationLink, numer0nService, numer0nClient]);
+	}, [gameService, invitationLink, numer0nService, numer0nClient]);
 
 	useEffect(() => {
 		if (playersSet) {
 			// Navigate to the desired route when playersSet is true
 			navigate("/game"); // Replace "/game" with your target route
-			// setGameData(null);
-			// setNumer0nService(null);
-			// setNumer0nClient(null);
 			setIsGameCreated(false);
 			setInvitationLink("");
 			setPlayersSet(false);
@@ -137,7 +105,7 @@ export default function Onboard() {
 		setLoadingCreate(false);
 		setLoadingCreate(true);
 
-		if (!gameData) {
+		if (!gameService) {
 			console.log("Game data not found");
 			setError("Game data not found");
 			setLoadingCreate(false);
@@ -174,7 +142,7 @@ export default function Onboard() {
 
 		const numer0nService = new Numer0nContractService(
 			wallet,
-			gameData,
+			gameService,
 			contractAddress.toString()
 		);
 		const numer0nClient = new Numer0nClient(numer0nService);
@@ -184,10 +152,10 @@ export default function Onboard() {
 		);
 		await numer0nClient.connect();
 
-		gameData.setGamePort(port);
-		gameData.setGameCode(gameCode);
-		gameData.setContractAddress(contractAddress.toString());
-		gameData.setSelf({
+		gameService.setGamePort(port);
+		gameService.setGameCode(gameCode);
+		gameService.setContractAddress(contractAddress.toString());
+		gameService.setSelf({
 			id: 1,
 			address: wallet.getAddress().toString(),
 			guesses: [],

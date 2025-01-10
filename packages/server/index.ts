@@ -93,7 +93,7 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
 });
 
 // Start the HTTP server
-const HTTP_PORT = 3000;
+const HTTP_PORT = process.env.PORT || 3001;
 server.listen(HTTP_PORT, () => {
 	console.log(`HTTP server listening on port ${HTTP_PORT}`);
 });

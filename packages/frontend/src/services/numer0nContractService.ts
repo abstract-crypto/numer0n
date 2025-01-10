@@ -1,16 +1,20 @@
 import { AztecAddress, AccountWallet } from "@aztec/aztec.js";
 
 import { Numer0nContract } from "../artifacts/Numer0n.js";
-import { Game, Guess } from "src/services/game.js";
+import { GameService, Guess } from "src/services/gameService.js";
 
 export class Numer0nContractService {
 	contractAddress: AztecAddress | null = null;
 	self: AccountWallet;
-	game: Game;
+	gameService: GameService;
 
-	constructor(self: AccountWallet, game: Game, contractAddress?: string) {
+	constructor(
+		self: AccountWallet,
+		gameService: GameService,
+		contractAddress?: string
+	) {
 		this.self = self;
-		this.game = game;
+		this.gameService = gameService;
 		if (contractAddress) {
 			this.contractAddress = AztecAddress.fromString(contractAddress);
 		}
@@ -20,7 +24,7 @@ export class Numer0nContractService {
 		if (!this.contractAddress) {
 			console.error("Contract address is not set: ", this.contractAddress);
 
-			const contractAddr = this.game.getContractAddress();
+			const contractAddr = this.gameService.getContractAddress();
 			if (!contractAddr) {
 				throw new Error("Contract address is not set");
 			}

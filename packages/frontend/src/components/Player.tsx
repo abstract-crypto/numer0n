@@ -1,15 +1,15 @@
 import { Grid } from "@mantine/core";
 import { useState, useEffect } from "react";
 import Card from "./Card";
-import { useGameContext } from "../contexts/useGameContext";
+import { useGameContext } from "../contexts";
 import { numLen } from "../scripts/constants";
 import { paddHeadZero, stringfyAndPaddZero } from "../scripts/utils";
 
 type PlayerType = { isSelf: boolean; opponentSecretNum: number | null };
 
 export default function Player(props: PlayerType) {
-	const { gameData } = useGameContext();
-	if (!gameData) return null;
+	const { gameService } = useGameContext();
+	if (!gameService) return null;
 
 	const [nums, setNums] = useState<number[]>(Array(numLen).fill(null));
 	const [opponentNums, setOpponentNums] = useState<number[]>(
@@ -36,20 +36,20 @@ export default function Player(props: PlayerType) {
 	// Add secret num
 	useEffect(() => {
 		(async () => {
-			if (props.isSelf && gameData.getSelf().secretNumber != undefined) {
-				const arrayNum = gameData
+			if (props.isSelf && gameService.getSelf().secretNumber != undefined) {
+				const arrayNum = gameService
 					.getSelf()
 					.secretNumber!.toString()
 					.split("")
-					.map((num) => parseInt(num, 10));
+					.map((num: string) => parseInt(num, 10));
 
-				if (gameData.getSelf().secretNumber! < 100) {
+				if (gameService.getSelf().secretNumber! < 100) {
 					paddHeadZero(arrayNum);
 				}
 				setNums(arrayNum);
 			}
 		})();
-	}, [props.isSelf, gameData.getSelf().secretNumber]);
+	}, [props.isSelf, gameService.getSelf().secretNumber]);
 
 	return (
 		<>

@@ -6,7 +6,7 @@
         "test"
     ],
     "scripts": {
-        "build": "yarn clean && tsc -b",
+        "build": "vite build",
         "clean": "rm -rf ./dest .tsbuildinfo",
         "test": "vitest run"
     },

@@ -1,9 +1,8 @@
 import { Button, Center, Stack, PinInput, Text } from "@mantine/core";
 import { useState } from "react";
 import { numLen } from "../scripts/constants";
-import { useGameContext } from "../contexts/useGameContext";
+import { useGameContext, useAccountContext } from "../contexts";
 import GuessNumModal from "./Modals/GuessNumModal";
-import { useAccountContext } from "src/contexts/useAccountContext";
 
 type CallType = {
 	playerId: number;
@@ -12,7 +11,7 @@ type CallType = {
 };
 
 export default function Call(props: CallType) {
-	const { gameData, round, numer0nService, numer0nClient, updateStates } =
+	const { gameService, round, numer0nService, numer0nClient, updateStates } =
 		useGameContext();
 	// const { wallet, opponent } = useAccounts();
 	const { wallet } = useAccountContext();
@@ -44,7 +43,7 @@ export default function Call(props: CallType) {
 	}
 
 	async function handleCall() {
-		if (!gameData) {
+		if (!gameService) {
 			console.log("Game data not found");
 			return;
 		}
@@ -77,7 +76,7 @@ export default function Call(props: CallType) {
 			console.log(num);
 
 			console.log("playerId :", props.playerId);
-			// const player = gameData.getSelf().id == 1 ? player1 : player2;
+			// const player = gameService.getSelf().id == 1 ? player1 : player2;
 			// if (!player) return;
 
 			if (!wallet) {

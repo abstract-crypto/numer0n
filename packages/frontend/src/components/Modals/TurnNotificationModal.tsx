@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import { Modal, Text, Box } from "@mantine/core";
 import { useEffect } from "react";
 

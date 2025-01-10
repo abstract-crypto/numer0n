@@ -1,10 +1,3 @@
-// export const SANDBOX_URL =
-// 	import.meta.env.VITE_ENV == "LOCAL"
-// 		? "http://127.0.0.1:8080"
-// 		: import.meta.env.VITE_ENV == "REMOTE"
-// 		? "https://cdc2-185-115-4-23.ngrok-free.app"
-// 		: "";
-
 export const numLen = 3;
 
 export const item = (num: number) => {
