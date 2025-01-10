@@ -8,7 +8,7 @@ export const getDefaultPXEURL = () => {
 		if (import.meta.env.VITE_ENV === "LOCAL") {
 			return "http://localhost:8080/";
 		} else if (import.meta.env.VITE_ENV === "REMOTE") {
-			return "https://pxe.obsidion.xyz:8080";
+			return "https://pxe.obsidion.xyz";
 		} else {
 			throw new Error("Invalid PXE URL environment variable");
 		}

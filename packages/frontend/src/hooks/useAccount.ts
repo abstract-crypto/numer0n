@@ -7,10 +7,17 @@ import { ObsidionWalletSDK } from "@obsidion/wallet-sdk";
 import { fallbackOpenPopup } from "./fallback";
 import { Eip1193Account } from "@obsidion/wallet-sdk/eip1193";
 
-const OBSIDON_WALLET_URL =
-	import.meta.env.VITE_ENV == "LOCAL"
-		? "http://localhost:5173"
-		: "https://obsidion-wallet-demo.netlify.app";
+const getWalletURL = () => {
+	if (import.meta.env.VITE_ENV === "LOCAL") {
+		return "http://localhost:5173";
+	} else {
+		if (import.meta.env.VITE_ENV === "REMOTE") {
+			return "https://obsidion.vercel.app";
+		} else {
+			throw new Error("Invalid wallet URL environment variable");
+		}
+	}
+};
 
 export function useAccount() {
 	const { pxe, pxeURL, setPXEURL } = usePXE();
@@ -26,7 +33,7 @@ export function useAccount() {
 		if (!sdk) {
 			const sdk = new ObsidionWalletSDK(pxe, {
 				fallbackOpenPopup: fallbackOpenPopup,
-				walletUrl: OBSIDON_WALLET_URL,
+				walletUrl: getWalletURL(),
 			});
 			setSdk(sdk);
 			return;
@@ -51,7 +58,7 @@ export function useAccount() {
 
 		const sdk = new ObsidionWalletSDK(pxe, {
 			fallbackOpenPopup: fallbackOpenPopup,
-			walletUrl: OBSIDON_WALLET_URL,
+			walletUrl: getWalletURL(),
 		});
 		const wallet = await sdk.connect();
 		setWallet(wallet);
