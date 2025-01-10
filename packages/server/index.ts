@@ -1,6 +1,7 @@
 import { createServer, IncomingMessage, ServerResponse } from "http";
 import { GameServerManager } from "./GameServerManager";
 import { URL } from "url";
+import { WebSocket, WebSocketServer } from "ws";
 
 // Simple HTTP server to manage requests
 const server = createServer((req: IncomingMessage, res: ServerResponse) => {
@@ -64,12 +65,12 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
 
 				// Create new GameServer
 				console.log(`Attempting to create GameServer for gameId: ${gameId}`);
-				const { port } = GameServerManager.createGame(gameId, contractAddress);
-				console.log(`GameServer created on port ${port} for gameId: ${gameId}`);
+				GameServerManager.createGame(gameId, contractAddress);
+				console.log(`GameServer created for gameId: ${gameId}`);
 
 				res.statusCode = 200;
 				res.setHeader("Content-Type", "application/json");
-				return res.end(JSON.stringify({ gameId, port }));
+				return res.end(JSON.stringify({ gameId }));
 			} catch (err) {
 				console.error("Error processing /createGame request:", err);
 				res.statusCode = 500;
@@ -90,6 +91,33 @@ const server = createServer((req: IncomingMessage, res: ServerResponse) => {
 		res.setHeader("Content-Type", "application/json");
 		res.end(JSON.stringify({ error: "Not Found" }));
 	}
+});
+
+// Initialize a single WebSocket server
+const wss = new WebSocketServer({ server });
+
+wss.on("connection", (ws: WebSocket, req: IncomingMessage) => {
+	// Parse gameId from query parameters
+	const parsedUrl = new URL(req.url ?? "", `http://${req.headers.host}`);
+	const gameId = parsedUrl.searchParams.get("gameId");
+
+	if (!gameId) {
+		ws.send(JSON.stringify({ error: "Missing gameId in connection URL" }));
+		ws.close();
+		return;
+	}
+
+	const gameServer = GameServerManager.getGameServer(gameId);
+	if (!gameServer) {
+		ws.send(
+			JSON.stringify({ error: `Game with ID ${gameId} does not exist.` })
+		);
+		ws.close();
+		return;
+	}
+
+	// Delegate the connection to the specific GameServer instance
+	gameServer.handleConnection(ws, req);
 });
 
 // Start the HTTP server

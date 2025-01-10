@@ -18,7 +18,6 @@ export default function Game() {
 		status,
 		gameResult,
 		numer0nContractService,
-		addSessionKeys,
 	} = useGameContext();
 	const [IsAddNumModalOpen, setOpenAddNumModal] = useState(false);
 	const [IsTurnNotificationModalOpen, setOpenTurnNotificationModal] =
@@ -30,9 +29,6 @@ export default function Game() {
 		null
 	);
 	const [isMyTurn, setIsMyTurn] = useState(false);
-
-	const [showSessionKeyButton, setShowSessionKeyButton] = useState(false);
-
 	// Add secret num
 	useEffect(() => {
 		(async () => {
@@ -111,95 +107,70 @@ export default function Game() {
 		}
 	}, [gameResult]);
 
-	useEffect(() => {
-		let parentOrigin = null;
-
-		if (window !== window.parent) {
-			console.log("parent exists");
-			setShowSessionKeyButton(true);
-		} else {
-			console.log("child or different parent");
-			setShowSessionKeyButton(false);
-		}
-	}, []);
-
 	return (
-		<>
-			<Container>
-				<Box
-					mt={20}
+		<Container pt={10} pb={20}>
+			<Box
+				style={{
+					padding: "15px",
+					backgroundColor: "white",
+					borderRadius: "20px",
+				}}
+			>
+				<Group
+					align="center"
+					mx={5}
+					pb={10}
 					style={{
-						padding: "20px",
-						backgroundColor: "white",
-						borderRadius: "20px",
+						borderBottomStyle: "solid",
+						borderBottomColor: "#c4c3d0",
+						borderWidth: "1px",
 					}}
 				>
-					<Group
-						align="center"
-						mx={5}
-						pb={10}
-						style={{
-							borderBottomStyle: "solid",
-							borderBottomColor: "#c4c3d0",
-							borderWidth: "1px",
-						}}
-					>
-						<Text style={{ flex: 1, textAlign: "center" }}>
-							Game ID: {gameService ? gameService.getGameCode() : ""}
-						</Text>
-						{(status == GAME_STATUS.STARTED ||
-							status == GAME_STATUS.FINISHED) && (
-							<>
-								<Text style={{ flex: 1, textAlign: "center" }}>
-									{gameResult === null ? (
-										<>Who's turn: {isMyTurn ? "You!" : "Opponent"}</>
-									) : (
-										<>
-											This game is over:{" "}
-											{gameResult == "DRAW"
-												? "draw"
-												: gameResult == "WIN"
-												? "you won"
-												: "you lost"}
-										</>
-									)}
-								</Text>
+					<Text style={{ flex: 1, textAlign: "center" }}>
+						Game ID: {gameService ? gameService.getGameCode() : ""}
+					</Text>
+					{(status == GAME_STATUS.STARTED ||
+						status == GAME_STATUS.FINISHED) && (
+						<>
+							<Text style={{ flex: 1, textAlign: "center" }}>
+								{gameResult === null ? (
+									<>Who's turn: {isMyTurn ? "You!" : "Opponent"}</>
+								) : (
+									<>
+										This game is over:{" "}
+										{gameResult == "DRAW"
+											? "draw"
+											: gameResult == "WIN"
+											? "you won"
+											: "you lost"}
+									</>
+								)}
+							</Text>
 
-								<Text style={{ flex: 1, textAlign: "center" }}>
-									Round: {round}
-								</Text>
-							</>
-						)}
-						{showSessionKeyButton && (
-							<Box>
-								<Button
-									size="xs"
-									variant="filled"
-									onClick={() => addSessionKeys()}
-								>
-									Enable Session Mode
-								</Button>
-							</Box>
-						)}
-					</Group>
-					<SimpleGrid cols={2}>
-						<PlayerBoard isSelf={true} opponentSecretNum={opponentSecretNum} />
-						<PlayerBoard isSelf={false} opponentSecretNum={opponentSecretNum} />
-					</SimpleGrid>
-					<SimpleGrid cols={2}>
-						<CallHistory
-							isSelf={true}
-							// itemUsed={itemUsed}
-							// historyUpdated={historyUpdated}
-						/>
-						<CallHistory
-							isSelf={false}
-							// itemUsed={itemUsed}
-							// historyUpdated={historyUpdated}
-						/>
-					</SimpleGrid>
+							<Text style={{ flex: 1, textAlign: "center" }}>
+								Round: {round}
+							</Text>
+						</>
+					)}
+				</Group>
+				<SimpleGrid cols={2}>
+					<PlayerBoard isSelf={true} opponentSecretNum={opponentSecretNum} />
+					<PlayerBoard isSelf={false} opponentSecretNum={opponentSecretNum} />
+				</SimpleGrid>
+				<SimpleGrid cols={2}>
+					<CallHistory
+						isSelf={true}
+						// itemUsed={itemUsed}
+						// historyUpdated={historyUpdated}
+					/>
+					<CallHistory
+						isSelf={false}
+						// itemUsed={itemUsed}
+						// historyUpdated={historyUpdated}
+					/>
+				</SimpleGrid>
 
-					{/* <SimpleGrid cols={2} mx={30} mt={50} pb={100}>
+				{/* <SimpleGrid cols={2} mx={30} mt={50} pb={100}>
 						<Item
 							playerId={game.getSelf().id}
 							isFirst={game.getIsFirst()!}
@@ -213,30 +184,29 @@ export default function Game() {
 							updateStates={updateStates}
 						/>
 					</SimpleGrid> */}
-					<Box mx={30} mt={50} pb={100}>
-						<Call
-							playerId={gameService ? gameService.getSelf().id : 0}
-							isMyTurn={isMyTurn}
-							isFinished={status == GAME_STATUS.FINISHED}
-						/>
-					</Box>
+				<Box mx={30} mt={50} pb={30}>
+					<Call
+						playerId={gameService ? gameService.getSelf().id : 0}
+						isMyTurn={isMyTurn}
+						isFinished={status == GAME_STATUS.FINISHED}
+					/>
 				</Box>
+			</Box>
 
-				<AddNumMoodal
-					isOpen={IsAddNumModalOpen}
-					onClose={() => setOpenAddNumModal(false)}
-				/>
-				<TurnNotificationModal
-					isOpen={IsTurnNotificationModalOpen}
-					onClose={() => setOpenTurnNotificationModal(false)}
-				/>
-				<GameResultModal
-					isOpen={isGameResultModalOpen}
-					onClose={() => setIsGameResultModalOpen(false)}
-					gameResult={gameResult}
-					opponentSecretNum={opponentSecretNum}
-				/>
-			</Container>
-		</>
+			<AddNumMoodal
+				isOpen={IsAddNumModalOpen}
+				onClose={() => setOpenAddNumModal(false)}
+			/>
+			<TurnNotificationModal
+				isOpen={IsTurnNotificationModalOpen}
+				onClose={() => setOpenTurnNotificationModal(false)}
+			/>
+			<GameResultModal
+				isOpen={isGameResultModalOpen}
+				onClose={() => setIsGameResultModalOpen(false)}
+				gameResult={gameResult}
+				opponentSecretNum={opponentSecretNum}
+			/>
+		</Container>
 	);
 }

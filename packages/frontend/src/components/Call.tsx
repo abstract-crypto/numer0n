@@ -1,8 +1,9 @@
-import { Button, Center, Stack, PinInput, Text } from "@mantine/core";
-import { useState } from "react";
+import { Button, Center, Stack, PinInput, Text, Box } from "@mantine/core";
+import { useEffect, useState } from "react";
 import { numLen } from "../scripts/constants";
 import { useGameContext, useAccountContext } from "../contexts";
 import GuessNumModal from "./Modals/GuessNumModal";
+import EnableSessionKeyModal from "./Modals/EnableSessionKey";
 
 type CallType = {
 	playerId: number;
@@ -11,9 +12,13 @@ type CallType = {
 };
 
 export default function Call(props: CallType) {
-	const { gameService, round, numer0nService, numer0nClient, updateStates } =
-		useGameContext();
-	// const { wallet, opponent } = useAccounts();
+	const {
+		gameService,
+		round,
+		numer0nContractService,
+		numer0nClient,
+		updateStates,
+	} = useGameContext();
 	const { wallet } = useAccountContext();
 	const [input, setInput] = useState<string>();
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
@@ -22,6 +27,8 @@ export default function Call(props: CallType) {
 	const [IsCallnumOpen, setOpenCallNumModal] = useState(false);
 	const [guess, setGuess] = useState<number[]>([]);
 	const [errorMessage, setErrorMessage] = useState("");
+	const [showSessionKeyButton, setShowSessionKeyButton] = useState(false);
+	const [isSessionKeyModalOpen, setIsSessionKeyModalOpen] = useState(false);
 
 	function handleInput(input: string) {
 		if (input.length != numLen) setCallDisabled(true);
@@ -48,8 +55,8 @@ export default function Call(props: CallType) {
 			return;
 		}
 
-		if (!numer0nService) {
-			console.log("Numer0n service not found");
+		if (!numer0nContractService) {
+			console.log("Numer0n contract service not found");
 			return;
 		}
 
@@ -76,15 +83,13 @@ export default function Call(props: CallType) {
 			console.log(num);
 
 			console.log("playerId :", props.playerId);
-			// const player = gameService.getSelf().id == 1 ? player1 : player2;
-			// if (!player) return;
 
 			if (!wallet) {
 				console.log("wallet not found");
 				return;
 			}
 
-			await numer0nService.guessNumber(num);
+			await numer0nContractService.guessNumber(num);
 			console.log("sendEvaluateGuessRequest...");
 			console.log("num: ", num);
 			await numer0nClient.sendEvaluateGuessRequest(num);
@@ -92,7 +97,10 @@ export default function Call(props: CallType) {
 			// TODO: loading forever...
 
 			console.log("round: ", round);
-			const guess = await numer0nService.getGuess(wallet.getAddress(), round);
+			const guess = await numer0nContractService.getGuess(
+				wallet.getAddress(),
+				round
+			);
 			console.log("call guess: ", guess);
 			// await delay(3);
 			if (guess.guess != 0) {
@@ -117,36 +125,64 @@ export default function Call(props: CallType) {
 		setOpenCallNumModal(false);
 	};
 
+	useEffect(() => {
+		if (window !== window.parent) {
+			console.log("parent exists");
+			setShowSessionKeyButton(true);
+		} else {
+			console.log("child or different parent");
+			setShowSessionKeyButton(false);
+		}
+	}, []);
+
 	return (
 		<>
 			<Center>
-				<Stack>
-					<PinInput
-						type={/^[0-9]*$/}
-						inputType="number"
-						inputMode="numeric"
-						autoFocus={true}
-						value={input}
-						onChange={handleInput}
-						length={numLen}
-						size="xl"
-						onComplete={handleFilledNums}
-					/>
-					<Button
-						variant="filled"
-						style={{ border: "1px solid lightblue" }}
-						loading={calling}
-						onClick={handleCall}
-						disabled={callDisabled}
-					>
-						Submit Guess
-					</Button>
-					{errorMessage ? (
-						<Text c={"red"} style={{ textAlign: "center" }}>
-							{errorMessage}
-						</Text>
-					) : (
-						""
+				<Stack align="center">
+					<Stack>
+						<PinInput
+							type={/^[0-9]*$/}
+							inputType="number"
+							inputMode="numeric"
+							autoFocus={true}
+							value={input}
+							onChange={handleInput}
+							length={numLen}
+							size="xl"
+							onComplete={handleFilledNums}
+						/>
+						<Button
+							variant="filled"
+							style={{ border: "1px solid lightblue" }}
+							loading={calling}
+							onClick={handleCall}
+							disabled={callDisabled}
+						>
+							Submit Guess
+						</Button>
+						{errorMessage ? (
+							<Text c={"red"} style={{ textAlign: "center" }}>
+								{errorMessage}
+							</Text>
+						) : (
+							""
+						)}
+					</Stack>
+					{showSessionKeyButton && (
+						<Box>
+							<Text
+								mt={5}
+								size="sm"
+								c="blue"
+								style={{
+									textDecoration: "underline",
+									cursor: "pointer",
+								}}
+								onClick={() => setIsSessionKeyModalOpen(true)}
+							>
+								Enable Blind Sign Mode?
+							</Text>
+						</Box>
 					)}
 				</Stack>
 			</Center>
@@ -154,6 +190,10 @@ export default function Call(props: CallType) {
 				isOpen={IsCallnumOpen}
 				onClose={closeModal}
 				guess={guess}
+			/>
+			<EnableSessionKeyModal
+				isOpen={isSessionKeyModalOpen}
+				onClose={() => setIsSessionKeyModalOpen(false)}
 			/>
 		</>
 	);

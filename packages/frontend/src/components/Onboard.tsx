@@ -8,6 +8,7 @@ import {
 	Box,
 	CopyButton,
 	Anchor,
+	TextInput,
 } from "@mantine/core";
 import { useGameContext, useAccountContext } from "../contexts";
 import { useNavigate } from "react-router-dom";
@@ -21,7 +22,7 @@ import {
 export default function Onboard() {
 	const {
 		gameService,
-		numer0nService,
+		numer0nContractService,
 		numer0nClient,
 		setNumer0nClient,
 		setNumer0nService,
@@ -34,40 +35,54 @@ export default function Onboard() {
 	const [invitationLink, setInvitationLink] = useState<string>("");
 	const [playersSet, setPlayersSet] = useState<boolean>(false);
 
+	const [inviteLinkInput, setInviteLinkInput] = useState<string>("");
+
 	const [error, setError] = useState<string | null>(null);
 
 	useEffect(() => {
 		const loadOnboard = async () => {
+			console.log("loadOnboard");
+			console.log("0");
 			if (!gameService) {
 				console.log("Game data not found");
 				return;
 			}
+			console.log("1");
 
-			if (!numer0nService) {
+			if (!numer0nContractService) {
 				console.log("Numer0n service not found");
 				return;
 			}
-
+			console.log("2");
 			const gameCode = gameService.getGameCode();
 			const contractAddress = gameService.getContractAddress();
 			if (!gameCode || !contractAddress) {
 				console.log("Game code or contract address not found");
 				return;
 			}
+			console.log("3");
 
 			if (!invitationLink) {
-				const invitationUrl = `${window.location.origin}/invite?contract=${contractAddress}&secret=${gameCode}`;
+				const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}`;
 				setInvitationLink(invitationUrl);
 			}
 
-			const fetchedGameData = await numer0nService.getGame();
+			console.log("4");
+
+			const fetchedGameData = await numer0nContractService.getGame();
 			console.log("fetchedGameData: ", fetchedGameData);
 
-			if (Number(fetchedGameData.status) === GAME_STATUS.PLAYERS_SET) {
+			console.log("5");
+			console.log("fetchedGameData.status: ", fetchedGameData.status);
+			console.log("GAME_STATUS.PLAYERS_SET: ", GAME_STATUS.PLAYERS_SET);
+
+			if (Number(fetchedGameData.status) !== GAME_STATUS.NULL) {
+				console.log("6");
 				if (!numer0nClient) {
 					console.log("numer0nClient not found");
 					return;
 				}
+				console.log("7");
 
 				// get opponent
 				const opponent = await numer0nClient.getOpponent();
@@ -75,19 +90,20 @@ export default function Onboard() {
 					console.log("opponent not found");
 					return;
 				}
-
+				console.log("8");
 				gameService.setOpponent({
 					id: 2,
 					address: opponent.toString(),
 					guesses: [],
 				});
-
+				console.log("9");
 				setPlayersSet(true);
+				console.log("10");
 			}
 		};
 		const intervalId = setInterval(loadOnboard, 5000);
 		return () => clearInterval(intervalId);
-	}, [gameService, invitationLink, numer0nService, numer0nClient]);
+	}, [gameService, invitationLink, numer0nContractService, numer0nClient]);
 
 	useEffect(() => {
 		if (playersSet) {
@@ -140,19 +156,19 @@ export default function Onboard() {
 		}
 		console.log("contractAddress: ", contractAddress.toString());
 
-		const numer0nService = new Numer0nContractService(
+		const numer0nContractService = new Numer0nContractService(
 			wallet,
 			gameService,
 			contractAddress.toString()
 		);
-		const numer0nClient = new Numer0nClient(numer0nService);
-		const port = await numer0nClient.registerGameRequest(
+		const numer0nClient = new Numer0nClient(numer0nContractService);
+		await numer0nClient.registerGameRequest(
 			gameCode,
 			contractAddress.toString()
 		);
 		await numer0nClient.connect();
 
-		gameService.setGamePort(port);
+		// gameService.setGamePort(port);
 		gameService.setGameCode(gameCode);
 		gameService.setContractAddress(contractAddress.toString());
 		gameService.setSelf({
@@ -161,15 +177,33 @@ export default function Onboard() {
 			guesses: [],
 		});
 
-		const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}&port=${port}`;
+		// const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}&port=${port}`;
+		const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}`;
 		setInvitationLink(invitationUrl);
 
 		setNumer0nClient(numer0nClient);
-		setNumer0nService(numer0nService);
+		setNumer0nService(numer0nContractService);
 
 		setIsGameCreated(true);
 		setLoadingCreate(false);
 	}
+
+	const handlePasteInviteLink = (
+		event: React.ClipboardEvent<HTMLInputElement>
+	) => {
+		const pastedData = event.clipboardData.getData("text");
+		try {
+			const url = new URL(pastedData);
+			const secret = url.searchParams.get("secret");
+			if (secret) {
+				navigate(`/invite?secret=${secret}`);
+			} else {
+				setError("Invalid invite link format.");
+			}
+		} catch (error) {
+			setError("Pasted data is not a valid URL.");
+		}
+	};
 
 	return (
 		<Container mt={100}>
@@ -225,7 +259,7 @@ export default function Onboard() {
 					</>
 				</Stack>
 			) : (
-				<Center style={{ flexDirection: "column" }}>
+				<Center style={{ flexDirection: "column", textAlign: "center" }}>
 					{!isGameCreated && (
 						<Button
 							style={{ textAlign: "center" }}
@@ -234,6 +268,38 @@ export default function Onboard() {
 						>
 							Create a new game
 						</Button>
+					)}
+					<TextInput
+						color="black"
+						label="Have Invite Link? Paste it here"
+						mt={25}
+						value={inviteLinkInput}
+						onChange={(e) => setInviteLinkInput(e.currentTarget.value)}
+						onPaste={handlePasteInviteLink}
+						style={{
+							width: "100%",
+							maxWidth: 400,
+						}}
+						styles={{
+							label: {
+								marginBottom: "12px", // Adjust the space as needed
+							},
+							input: {
+								backgroundColor: "rgba(255, 255, 255, 0.2)",
+								border: "1px solid gray", // Optional: Customize border color
+								color: "black", // Optional: Customize text color for better visibility
+
+								"&:focus": {
+									borderColor: "#80bdff", // Optional: Customize focus border color
+									boxShadow: "0 0 0 0.2rem rgba(0,123,255,.25)", // Optional: Customize focus shadow
+								},
+							},
+						}}
+					/>
+					{error && (
+						<Text mt={10} color="red">
+							{error}
+						</Text>
 					)}
 					{error && (
 						<Text mt={10} color="red">

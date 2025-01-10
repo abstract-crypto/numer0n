@@ -13,8 +13,6 @@ export class Numer0nClient {
 	private httpServerUrl: string;
 	private ws: WebSocket | null = null;
 	private pendingRequests = new Map<string, PendingRequest>();
-	// Once we call createGame, we store the port & gameId
-	private gamePort: number | null = null;
 	private gameId: string | null = null;
 	private userId: string;
 
@@ -26,7 +24,7 @@ export class Numer0nClient {
 		this.httpServerUrl =
 			import.meta.env.VITE_SERVER_URL ||
 			(import.meta.env.VITE_ENV === "LOCAL"
-				? "http://localhost:3000"
+				? "http://localhost:3001"
 				: "https://5f14-109-172-176-130.ngrok-free.app");
 	}
 
@@ -37,7 +35,7 @@ export class Numer0nClient {
 	public async registerGameRequest(
 		gameId: string,
 		contractAddress: string
-	): Promise<number> {
+	): Promise<void> {
 		try {
 			const res = await fetch(`${this.httpServerUrl}/createGame`, {
 				method: "POST",
@@ -49,14 +47,9 @@ export class Numer0nClient {
 			}
 
 			const data = await res.json();
-			// Expect data to have shape: { gameId: string, port: number }
 			this.gameId = data.gameId;
-			this.gamePort = data.port;
 
-			console.log(
-				`Created new game [${this.gameId}] on port [${this.gamePort}]`
-			);
-			return data.port;
+			console.log(`Created new game [${this.gameId}]`);
 		} catch (err) {
 			console.error("Failed to create game:", err);
 			throw err;
@@ -67,21 +60,23 @@ export class Numer0nClient {
 	 * Connects via WebSocket to the newly created GameServer (using the stored `gamePort`).
 	 * Sends a handshake message with our `userId`.
 	 */
-	public connect(gamePort?: number): Promise<void> {
+	public connect(gameId?: string): Promise<void> {
 		return new Promise((resolve, reject) => {
-			if (!gamePort && this.gamePort) {
-				gamePort = this.gamePort;
+			console.log("gameId in connect: ", gameId);
+			if (!gameId && this.gameId) {
+				gameId = this.gameId;
 			}
 
-			if (!gamePort) {
+			if (!gameId) {
 				return reject(
-					new Error("No game port available. Did you call createGame()?")
+					new Error("No gameId available. Did you call registerGameRequest()?")
 				);
 			}
 
-			this.gamePort = gamePort;
-
-			const wsUrl = `ws://localhost:${gamePort}`;
+			const wsUrl = `${this.httpServerUrl.replace(
+				/^http/,
+				"ws"
+			)}/?gameId=${gameId}`;
 			console.log(`Connecting to WebSocket at: ${wsUrl}`);
 			this.ws = new WebSocket(wsUrl);
 

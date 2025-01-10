@@ -17,7 +17,7 @@ type AddNumModalType = {
 };
 
 function AddNumMoodal(props: AddNumModalType) {
-	const { gameService, numer0nService } = useGameContext();
+	const { gameService, numer0nContractService } = useGameContext();
 
 	const [input, setInput] = useState<string>("");
 	const [callDisabled, setCallDisabled] = useState<boolean>(true);
@@ -49,7 +49,7 @@ function AddNumMoodal(props: AddNumModalType) {
 			return;
 		}
 
-		if (!numer0nService) {
+		if (!numer0nContractService) {
 			console.log("Numer0n service not found");
 			return;
 		}
@@ -60,7 +60,7 @@ function AddNumMoodal(props: AddNumModalType) {
 			const num = Number(nums.join(""));
 			console.log(num);
 
-			await numer0nService.addNumber(BigInt(num));
+			await numer0nContractService.addNumber(BigInt(num));
 			gameService.setSecretNumber(num);
 
 			props.onClose();

@@ -1,3 +1,4 @@
+import { IncomingMessage } from "http";
 import { WebSocket, WebSocketServer } from "ws";
 interface Game {
 	id: string;
@@ -24,8 +25,8 @@ interface JsonRpcResponse {
 
 export class GameServer {
 	private game: Game;
-	private port: number;
-	private wss: WebSocketServer;
+	// private port: number;
+	// private wss: WebSocketServer;
 
 	// Key: WebSocket, Value: user connection info
 	// private userMap: Map<WebSocket, UserConnection>;
@@ -40,40 +41,75 @@ export class GameServer {
 		}
 	>;
 
-	constructor(gameId: string, contractAddress: string, port: number) {
+	// constructor(gameId: string, contractAddress: string, port: number) {
+	// 	this.game = {
+	// 		id: gameId,
+	// 		contractAddress,
+	// 	};
+	// 	this.port = port;
+	// 	this.userMap = new Map();
+	// 	this.pendingEvaluations = new Map();
+
+	// 	// Create a new WSS for this game
+	// 	this.wss = new WebSocketServer({ port: this.port });
+	// 	console.log(`GameServer [${this.game.id}] listening on port ${this.port}`);
+
+	// 	// Handle new connections
+	// 	this.wss.on("connection", (ws, req) => {
+	// 		console.log(
+	// 			`Client connected to Game [${this.game.id}] from ${req.socket.remoteAddress}`
+	// 		);
+
+	// 		ws.on("message", (data) => {
+	// 			this.handleMessage(ws, data.toString());
+	// 		});
+
+	// 		ws.on("close", () => {
+	// 			const disconnectedUserId = this.getUserIdBySocket(ws);
+	// 			if (disconnectedUserId) {
+	// 				this.userMap.delete(disconnectedUserId);
+	// 				console.log(
+	// 					`Game [${this.game.id}]: User [${disconnectedUserId}] disconnected.`
+	// 				);
+	// 			} else {
+	// 				console.log(`Game [${this.game.id}]: Unknown user disconnected.`);
+	// 			}
+	// 		});
+	// 	});
+	// }
+	constructor(gameId: string, contractAddress: string) {
 		this.game = {
 			id: gameId,
 			contractAddress,
 		};
-		this.port = port;
 		this.userMap = new Map();
 		this.pendingEvaluations = new Map();
 
-		// Create a new WSS for this game
-		this.wss = new WebSocketServer({ port: this.port });
-		console.log(`GameServer [${this.game.id}] listening on port ${this.port}`);
+		console.log(`GameServer [${this.game.id}] initialized.`);
+	}
 
-		// Handle new connections
-		this.wss.on("connection", (ws, req) => {
-			console.log(
-				`Client connected to Game [${this.game.id}] from ${req.socket.remoteAddress}`
-			);
+	/**
+	 * Handle a new WebSocket connection.
+	 */
+	public handleConnection(ws: WebSocket, req: IncomingMessage) {
+		console.log(
+			`GameServer [${this.game.id}]: New connection from ${req.socket.remoteAddress}`
+		);
 
-			ws.on("message", (data) => {
-				this.handleMessage(ws, data.toString());
-			});
+		ws.on("message", (data) => {
+			this.handleMessage(ws, data.toString());
+		});
 
-			ws.on("close", () => {
-				const disconnectedUserId = this.getUserIdBySocket(ws);
-				if (disconnectedUserId) {
-					this.userMap.delete(disconnectedUserId);
-					console.log(
-						`Game [${this.game.id}]: User [${disconnectedUserId}] disconnected.`
-					);
-				} else {
-					console.log(`Game [${this.game.id}]: Unknown user disconnected.`);
-				}
-			});
+		ws.on("close", () => {
+			const disconnectedUserId = this.getUserIdBySocket(ws);
+			if (disconnectedUserId) {
+				this.userMap.delete(disconnectedUserId);
+				console.log(
+					`GameServer [${this.game.id}]: User [${disconnectedUserId}] disconnected.`
+				);
+			} else {
+				console.log(`GameServer [${this.game.id}]: Unknown user disconnected.`);
+			}
 		});
 	}
 
@@ -119,18 +155,17 @@ export class GameServer {
 			}
 
 			// Check if the userId already exists
-			for (let existingUserId of this.userMap.keys()) {
-				if (existingUserId === parsed.userId) {
-					console.log(
-						`Game [${this.game.id}]: UserId ${parsed.userId} is reconnecting. No action taken.`
-					);
-					return; // Return nothing if the userId already exists
-				} else {
-					// prevent setting more than 3 users
-					if (this.userMap.size >= 2) {
-						this.sendJsonRpcError(ws, null, -32005, "Game is full.");
-						return;
-					}
+
+			if (this.userMap.has(parsed.userId)) {
+				console.log(
+					`Game [${this.game.id}]: UserId ${parsed.userId} is reconnecting. No action taken.`
+				);
+				return; // Return nothing if the userId already exists
+			} else {
+				// prevent setting more than 3 users
+				if (this.userMap.size >= 2) {
+					this.sendJsonRpcError(ws, null, -32005, "Game is full.");
+					return;
 				}
 			}
 
@@ -223,10 +258,6 @@ export class GameServer {
 			return;
 		}
 
-		// Generate a unique ID for this evaluation request
-		// const evalId = this.generateUniqueId();
-
-		// console.log("evalID: ", evalId);
 		// Store the mapping of evalId -> requesting user's WebSocket
 		this.pendingEvaluations.set(requestId, {
 			from: userId,
@@ -247,10 +278,6 @@ export class GameServer {
 			id: requestId,
 		};
 		opponent.ws.send(JSON.stringify(evalRequest));
-
-		// Optionally, you can send an immediate "ack" result to user A:
-		// (User A might want to wait for the actual result from B, though.)
-		// this.sendJsonRpcResult(ws, id, { status: "guess forwarded to opponent" });
 	}
 
 	/**
@@ -316,14 +343,6 @@ export class GameServer {
 			}
 		}
 		return undefined;
-	}
-
-	/**
-	 * Generate a unique identifier for evaluations.
-	 * Could be replaced by UUID, nanoid, or any other robust approach.
-	 */
-	private generateUniqueId(): string {
-		return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
 	}
 
 	/**

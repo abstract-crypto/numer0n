@@ -22,7 +22,7 @@ function InvitePage() {
 	const { wallet } = useAccountContext();
 	const location = useLocation();
 	const [secretCode, setSecretCode] = useState("");
-	const [port, setPort] = useState(0);
+	// const [port, setPort] = useState(0);
 	const [error, setError] = useState("");
 	const [loadingJoin, setLoadingJoin] = useState(false);
 	const [completeJoin, setCompleteJoin] = useState(false);
@@ -43,7 +43,7 @@ function InvitePage() {
 			// Parse query params
 			const queryParams = new URLSearchParams(location.search);
 			const secret = queryParams.get("secret");
-			const port = queryParams.get("port");
+			// const port = queryParams.get("port");
 
 			console.log("secret: ", secret);
 
@@ -52,18 +52,13 @@ function InvitePage() {
 				return;
 			}
 
-			console.log("port: ", port);
-			if (!port) {
-				setError("Invalid port");
-				return;
-			}
-
 			if (!numer0nClient) {
 				console.log("Numer0n client not found");
 				return;
 			}
 
-			await numer0nClient.connect(Number(port));
+			// await numer0nClient.connect(Number(port));
+			await numer0nClient.connect(secret);
 			console.log("numer0nClient connected");
 			const contractAddress = await numer0nClient.getContractAddress();
 
@@ -73,9 +68,7 @@ function InvitePage() {
 			}
 
 			setSecretCode(secret);
-			setPort(Number(port));
 			setContractAddress(contractAddress);
-			gameService.setGamePort(Number(port));
 			gameService.setContractAddress(contractAddress);
 			gameService.setGameCode(secret);
 		};
@@ -106,19 +99,6 @@ function InvitePage() {
 			return;
 		}
 
-		// if (!numer0nService) {
-		// 	console.log("Numer0n service not found");
-		// 	setError("Numer0n service not found");
-		// 	setLoadingJoin(false);
-		// 	return;
-		// }
-
-		// if (!numer0nClient) {
-		// 	console.log("Numer0n client not found");
-		// 	setError("Numer0n client not found");
-		// 	setLoadingJoin(false);
-		// 	return;
-		// }
 		const numer0nService = new Numer0nContractService(
 			wallet,
 			gameService,
@@ -143,15 +123,12 @@ function InvitePage() {
 			return;
 		}
 
-		// const port = gameService.getGamePort();
-		await numer0nClient.connect(port);
+		await numer0nClient.connect(secretCode);
 		const opponent = await numer0nClient.getOpponent();
 		if (!opponent) {
 			console.log("opponent not found");
 			return;
 		}
-
-		// setOpponent(opponent);
 
 		gameService.setSelf({
 			id: 2,
@@ -198,9 +175,8 @@ function InvitePage() {
 					</Text>
 				</Box>
 				<Stack align="center" mt={5} mx={10}>
-					<Text size="xl">Game Invitation</Text>
-					{/* <Text size="md">Contract Address: {contractAddress}</Text> */}
-					<Text size="md">Secret Code: {secretCode}</Text>
+					<Text size="xl">Invitation</Text>
+					<Text size="md">Game Id: {secretCode}</Text>
 					<Button
 						mt={10}
 						mx={35}

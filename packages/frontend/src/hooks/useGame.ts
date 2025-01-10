@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
 import { stringfyAndPaddZero } from "src/scripts/utils";
-import { AztecAddress, type FunctionSelector } from "@aztec/aztec.js";
 import { useAccountContext } from "src/contexts/useAccountContext";
 import {
 	GameService,
@@ -41,9 +40,6 @@ export const useGame = () => {
 	const [resultRowsSelf, setResultRowsSelf] = useState<ResultRow[]>(emptyRows);
 	const [resultRowsOpponent, setResultRowsOpponent] =
 		useState<ResultRow[]>(emptyRows);
-
-	// console.log("resultRowsSelf in useGuess: ", resultRowsSelf);
-	// console.log("resultRowsOpponent in useGuess: ", resultRowsOpponent);
 
 	const [isFirst, setIsFirst] = useState<boolean | null>(null);
 	const [round, setRound] = useState(0);
@@ -95,10 +91,12 @@ export const useGame = () => {
 			}
 			try {
 				const numer0nClient = new Numer0nClient(numer0nContractService);
-				const port = gameService.getGamePort();
-				if (port) {
-					await numer0nClient.connect(port);
+				const gameId = gameService.getGameCode();
+				console.log("gameId in initNumer0nClient: ", gameId);
+				if (gameId) {
+					await numer0nClient.connect(gameId);
 				}
+
 				setNumer0nClient(numer0nClient);
 			} catch (error) {
 				console.error("Error connecting to numer0n client: ", error);
@@ -306,35 +304,6 @@ export const useGame = () => {
 		return resultRow;
 	};
 
-	const addSessionKeys = async () => {
-		if (!numer0nContractService || !wallet) {
-			console.log("numer0nContractService or wallet not found");
-			return;
-		}
-
-		const numer0nContract = await numer0nContractService.getNumer0nContract();
-
-		const addresses = [numer0nContract.address, numer0nContract.address];
-		const selectors: FunctionSelector[] = [];
-		const functionNames: string[] = [];
-
-		const guessNumberMethod = numer0nContract.methods
-			.guess_num(wallet.getAddress(), 1)
-			.request();
-
-		selectors.push(guessNumberMethod.selector);
-		functionNames.push(guessNumberMethod.name);
-
-		const evaluateGuessMethod = numer0nContract.methods
-			.evaluate_guess(wallet.getAddress(), AztecAddress.ZERO, 1)
-			.request();
-
-		selectors.push(evaluateGuessMethod.selector);
-		functionNames.push(evaluateGuessMethod.name);
-
-		await wallet.addSessionKeys(addresses, selectors, functionNames);
-	};
-
 	const leaveGame = async () => {
 		if (!gameService) {
 			console.log("gameService not found");
@@ -360,7 +329,6 @@ export const useGame = () => {
 		loadHistry,
 		setNumer0nService,
 		setNumer0nClient,
-		addSessionKeys,
 		leaveGame,
 	};
 };
