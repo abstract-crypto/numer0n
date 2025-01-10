@@ -8,10 +8,12 @@ import { fallbackOpenPopup } from "./fallback";
 import { Eip1193Account } from "@obsidion/wallet-sdk/eip1193";
 
 const getWalletURL = () => {
-	if (import.meta.env.VITE_ENV === "LOCAL") {
-		return "http://localhost:5173";
+	if (import.meta.env.VITE_WALLET_URL) {
+		return import.meta.env.VITE_WALLET_URL;
 	} else {
-		if (import.meta.env.VITE_ENV === "REMOTE") {
+		if (import.meta.env.VITE_ENV === "LOCAL") {
+			return "http://localhost:5173";
+		} else if (import.meta.env.VITE_ENV === "REMOTE") {
 			return "https://obsidion.vercel.app";
 		} else {
 			throw new Error("Invalid wallet URL environment variable");
