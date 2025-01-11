@@ -14,6 +14,7 @@ function InvitePage() {
 		gameService,
 		numer0nClient,
 		contractAddress,
+		numer0nContractService,
 		setContractAddress,
 		setNumer0nService,
 		setNumer0nClient,
@@ -43,7 +44,6 @@ function InvitePage() {
 			// Parse query params
 			const queryParams = new URLSearchParams(location.search);
 			const secret = queryParams.get("secret");
-			// const port = queryParams.get("port");
 
 			console.log("secret: ", secret);
 
@@ -52,13 +52,10 @@ function InvitePage() {
 				return;
 			}
 
-			if (!numer0nClient) {
-				console.log("Numer0n client not found");
-				return;
-			}
+			const contractService = new Numer0nContractService(wallet, gameService);
+			const numer0nClient = new Numer0nClient(secret, contractService, true);
 
-			// await numer0nClient.connect(Number(port));
-			// await numer0nClient.connect(secret);
+			await numer0nClient.connect();
 			console.log("numer0nClient connected");
 			const contractAddress = await numer0nClient.getContractAddress();
 
@@ -74,7 +71,7 @@ function InvitePage() {
 		};
 
 		fetchGameData();
-	}, [location, gameService, wallet, numer0nClient]);
+	}, [location, gameService, wallet, numer0nClient, numer0nContractService]);
 
 	useEffect(() => {
 		if (completeJoin) {
