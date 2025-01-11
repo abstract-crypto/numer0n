@@ -94,6 +94,7 @@ export const useGame = () => {
 	}, [gameService, numer0nContractService]);
 
 	const updateStates = async () => {
+		console.log("updateStates...");
 		if (!numer0nContractService || !numer0nContractService.contractAddress) {
 			console.log("numer0nContractService not found");
 			return;
@@ -129,7 +130,7 @@ export const useGame = () => {
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, []);
+	}, [gameService]);
 
 	useEffect(() => {
 		const intervalId = setInterval(async () => {

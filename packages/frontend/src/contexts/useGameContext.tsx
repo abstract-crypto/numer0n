@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useGame } from "src/hooks";
+import { useGame } from "../hooks";
 
 type GameContextProps = ReturnType<typeof useGame>;
 
