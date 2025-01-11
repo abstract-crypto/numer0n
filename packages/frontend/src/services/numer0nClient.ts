@@ -66,36 +66,34 @@ export class Numer0nClient {
 	 * Sends a handshake message with our `userId`.
 	 */
 	public connect(gameId?: string): Promise<void> {
+		console.log("gameId in connect: ", gameId);
+		if (!gameId && this.gameId) {
+			gameId = this.gameId;
+		}
+
+		if (!gameId) {
+			return Promise.reject(
+				new Error("No gameId available. Did you call registerGameRequest()?")
+			);
+		}
+
+		// If we’re already connecting or open, just skip
+		if (this.isConnected()) {
+			console.log(
+				"WebSocket is already connecting or open. No need to connect."
+			);
+			return Promise.resolve();
+		}
+
+		const wsUrl = `${this.httpServerUrl.replace(
+			/^http/,
+			"ws"
+		)}/?gameId=${gameId}`;
+		console.log(`Connecting to WebSocket at: ${wsUrl}`);
+		this.ws = new WebSocket(wsUrl);
+
 		return new Promise((resolve, reject) => {
-			console.log("gameId in connect: ", gameId);
-			if (!gameId && this.gameId) {
-				gameId = this.gameId;
-			}
-
-			if (!gameId) {
-				return reject(
-					new Error("No gameId available. Did you call registerGameRequest()?")
-				);
-			}
-
-			// Prevent multiple connection attempts
-			if (
-				this.ws &&
-				(this.ws.readyState === WebSocket.CONNECTING ||
-					this.ws.readyState === WebSocket.OPEN)
-			) {
-				console.log("WebSocket is already connecting or open.");
-				return resolve();
-			}
-
-			const wsUrl = `${this.httpServerUrl.replace(
-				/^http/,
-				"ws"
-			)}/?gameId=${gameId}`;
-			console.log(`Connecting to WebSocket at: ${wsUrl}`);
-			this.ws = new WebSocket(wsUrl);
-
-			this.ws.onopen = () => {
+			this.ws!.onopen = () => {
 				console.log("WebSocket connected.");
 
 				// Send handshake
@@ -109,21 +107,21 @@ export class Numer0nClient {
 				resolve();
 			};
 
-			this.ws.onerror = (err) => {
+			this.ws!.onerror = (err) => {
 				console.error("WebSocket error:", err);
 				reject(err);
 			};
 
 			// Handle incoming messages
-			this.ws.onmessage = (event) => {
+			this.ws!.onmessage = (event) => {
 				this.handleMessage(event.data);
 			};
 
-			this.ws.onclose = (event) => {
+			this.ws!.onclose = (event) => {
 				console.log("WebSocket closed.", event);
 				// Attempt to reconnect only if gameId is defined
 				// Attempt to reconnect only if gameId is defined and not already reconnecting
-				if (gameId && !this.isReconnecting) {
+				if (gameId) {
 					this.attemptReconnect(gameId);
 				} else {
 					console.error(
@@ -136,14 +134,23 @@ export class Numer0nClient {
 
 	private attemptReconnect(gameId: string) {
 		// To avoid multiple reconnect attempts stacking
-		if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
+		// If for some reason we got here and the WS is already connected, bail
+		if (this.isConnected()) {
+			console.log(
+				"WebSocket is already open/connecting. No need to reconnect."
+			);
+			return;
+		}
 
 		setTimeout(() => {
-			if (this.ws && this.ws.readyState === WebSocket.OPEN) {
-				console.log("WebSocket is already open. No need to reconnect.");
+			if (this.isConnected()) {
+				console.log(
+					"WebSocket is already connected now. Stopping reconnect attempts."
+				);
 				this.isReconnecting = false;
 				return;
 			}
+
 			this.connect(gameId)
 				.then(() => {
 					console.log("Reconnected!");
@@ -157,9 +164,23 @@ export class Numer0nClient {
 						this.reconnectDelay * 2,
 						this.maxReconnectDelay
 					);
+					console.log(
+						"attempting to reconnect recursively with delay: ",
+						this.reconnectDelay,
+						gameId
+					);
 					this.attemptReconnect(gameId);
 				});
 		}, this.reconnectDelay);
+	}
+
+	private isConnected(): boolean {
+		if (!this.ws) return false;
+		// WebSocket states: CONNECTING = 0, OPEN = 1, CLOSING = 2, CLOSED = 3
+		return (
+			this.ws.readyState === WebSocket.CONNECTING ||
+			this.ws.readyState === WebSocket.OPEN
+		);
 	}
 
 	/**
