@@ -101,11 +101,12 @@ function EnableSessionKeyModal({ isOpen, onClose }: EnableSessionKeyModalType) {
 						{!success ? (
 							<>
 								<Text size="lg" mt="md" mb="lg">
-									Enable Blind Sign Mode?
+									<b>Enable Blind Sign Mode?</b>
 								</Text>
 								<Text size="sm" mb="lg">
 									Blind Sign Mode allows you to play the game without having to
-									confirm transactions on popup every time.
+									confirm transactions on popup every time. <br />
+									Powered by Obsidion Wallet's session key feature.
 								</Text>
 								<Divider my="sm" />
 								{error && <Text c="red">{error}</Text>}

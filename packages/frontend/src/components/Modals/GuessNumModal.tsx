@@ -39,12 +39,10 @@ function GuessNumModal(props: GuessNumModalType) {
 			bite: props.guess[2],
 		};
 
-		console.log("moda; newResult] ", newResult);
 		setGuessResult(newResult);
 	};
 
 	useEffect(() => {
-		console.log("guessResult?.guess: ", guessResult.guess);
 		if (props.isOpen && guessResult.guess == "0") {
 			handleResult();
 			const intervalId = setInterval(handleResult, 10000);
@@ -52,7 +50,7 @@ function GuessNumModal(props: GuessNumModalType) {
 				clearInterval(intervalId);
 			};
 		}
-	}, [handleResult]);
+	}, [props.isOpen, handleResult]);
 
 	const handleClose = () => {
 		setGuessResult(emptyResult);

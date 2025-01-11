@@ -31,20 +31,25 @@ function InvitePage() {
 	console.log("numer0nClient in InvitePage: ", numer0nClient);
 
 	useEffect(() => {
+		// Parse query params
+		const queryParams = new URLSearchParams(location.search);
+		const secret = queryParams.get("secret");
+		setSecretCode(secret || "");
+	}, [location]);
+
+	useEffect(() => {
 		const fetchGameData = async () => {
 			console.log("fetchGameData...");
 			if (!hasVal(gameService, "gameService", "InvitePage.tsx")) return;
 			if (!hasVal(wallet, "wallet", "InvitePage.tsx")) return;
-
-			// Parse query params
-			const queryParams = new URLSearchParams(location.search);
-			const secret = queryParams.get("secret");
-
-			console.log("secret: ", secret);
-			if (!hasVal(secret, "secret", "InvitePage.tsx")) return;
+			if (!hasVal(secretCode, "secretCode", "InvitePage.tsx")) return;
 
 			const contractService = new Numer0nContractService(wallet, gameService);
-			const numer0nClient = new Numer0nClient(secret, contractService, true);
+			const numer0nClient = new Numer0nClient(
+				secretCode,
+				contractService,
+				true
+			);
 
 			await numer0nClient.connect();
 			console.log("numer0nClient connected");
@@ -52,14 +57,13 @@ function InvitePage() {
 
 			if (!hasVal(contractAddress, "contractAddress", "InvitePage.tsx")) return;
 
-			setSecretCode(secret);
 			setContractAddress(contractAddress);
 			gameService.setContractAddress(contractAddress);
-			gameService.setGameCode(secret);
+			gameService.setGameCode(secretCode);
 		};
 
 		fetchGameData();
-	}, [location, gameService, wallet]);
+	}, [location, gameService, wallet, secretCode]);
 
 	useEffect(() => {
 		if (completeJoin) {

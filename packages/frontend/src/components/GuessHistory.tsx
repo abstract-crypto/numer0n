@@ -2,6 +2,7 @@ import { Loader, Center, Table } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useGameContext } from "src/contexts";
 import { emptyRows, ResultRow } from "src/hooks/useGame";
+import { hasVal } from "src/scripts/utils";
 
 type GuessHistoryType = {
 	isSelf: boolean;
@@ -19,10 +20,7 @@ export default function GuessHistory(props: GuessHistoryType) {
 	// load from local storage After refresh
 	useEffect(() => {
 		(async () => {
-			if (!gameService) {
-				console.log("game not found");
-				return [];
-			}
+			if (!hasVal(gameService, "gameService", "GuessHistory.tsx")) return;
 			await loadHistry(props.isSelf, true);
 		})();
 	}, [props.isSelf, gameService]);
@@ -78,7 +76,9 @@ export default function GuessHistory(props: GuessHistoryType) {
 							<th style={{ padding: "10px", borderTopLeftRadius: "5px" }}>
 								Your guess
 							</th>
-							<th style={{ padding: "10px" }}>Eat - Bite</th>
+							<th style={{ padding: "10px", borderTopRightRadius: "5px" }}>
+								Eat - Bite
+							</th>
 							{/* <th style={{ padding: "10px", borderTopRightRadius: "5px" }}>
 								Item
 							</th> */}

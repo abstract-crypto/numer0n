@@ -38,7 +38,7 @@ export default function Header() {
 	};
 
 	const handleDisconnectWallet = async () => {
-		await disconnectWallet();
+		disconnectWallet();
 	};
 
 	return (
