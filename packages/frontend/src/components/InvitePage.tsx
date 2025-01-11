@@ -58,7 +58,7 @@ function InvitePage() {
 			}
 
 			// await numer0nClient.connect(Number(port));
-			await numer0nClient.connect(secret);
+			// await numer0nClient.connect(secret);
 			console.log("numer0nClient connected");
 			const contractAddress = await numer0nClient.getContractAddress();
 
@@ -104,7 +104,7 @@ function InvitePage() {
 			gameService,
 			contractAddress
 		);
-		const numer0nClient = new Numer0nClient(numer0nService);
+		const numer0nClient = new Numer0nClient(secretCode, numer0nService);
 
 		if (!secretCode) {
 			console.log("secret code not found");
@@ -123,7 +123,7 @@ function InvitePage() {
 			return;
 		}
 
-		await numer0nClient.connect(secretCode);
+		// await numer0nClient.connect(secretCode);
 		const opponent = await numer0nClient.getOpponent();
 		if (!opponent) {
 			console.log("opponent not found");

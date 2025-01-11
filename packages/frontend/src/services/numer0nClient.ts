@@ -14,7 +14,7 @@ export class Numer0nClient {
 	private httpServerUrl: string;
 	private ws: WebSocket | null = null;
 	private pendingRequests = new Map<string, PendingRequest>();
-	private gameId: string | null = null;
+	// private gameId: string | null = null;
 	private userId: string;
 
 	private reconnectDelay = 1000; // start at 1s
@@ -24,35 +24,37 @@ export class Numer0nClient {
 	/**
 	 * @param contractService  An instance of Numer0nContractService for local contract calls
 	 */
-	constructor(private contractService: Numer0nContractService) {
+	constructor(
+		private gameId: string,
+		private contractService: Numer0nContractService
+	) {
 		this.userId = contractService.self.getAddress().toString();
 		this.httpServerUrl =
 			import.meta.env.VITE_SERVER_URL ||
 			(import.meta.env.VITE_ENV === "LOCAL"
 				? "http://localhost:3001"
 				: "https://5f14-109-172-176-130.ngrok-free.app");
+
+		this.connect();
 	}
 
 	/**
 	 * Calls the HTTP endpoint `/createGame` to spin up a new GameServer.
 	 * The server responds with { gameId, port }.
 	 */
-	public async registerGameRequest(
-		gameId: string,
-		contractAddress: string
-	): Promise<void> {
+	public async registerGameRequest(contractAddress: string): Promise<void> {
 		try {
 			const res = await fetch(`${this.httpServerUrl}/createGame`, {
 				method: "POST",
 				headers: { "Content-Type": "application/json" },
-				body: JSON.stringify({ gameId, contractAddress }),
+				body: JSON.stringify({ gameId: this.gameId, contractAddress }),
 			});
 			if (!res.ok) {
 				throw new Error(`Server returned status ${res.status}`);
 			}
 
-			const data = await res.json();
-			this.gameId = data.gameId;
+			// const data = await res.json();
+			// this.gameId = data.gameId;
 
 			console.log(`Created new game [${this.gameId}]`);
 		} catch (err) {
@@ -65,17 +67,17 @@ export class Numer0nClient {
 	 * Connects via WebSocket to the newly created GameServer (using the stored `gamePort`).
 	 * Sends a handshake message with our `userId`.
 	 */
-	public connect(gameId?: string): Promise<void> {
-		console.log("gameId in connect: ", gameId);
-		if (!gameId && this.gameId) {
-			gameId = this.gameId;
-		}
+	public connect(): Promise<void> {
+		// console.log("gameId in connect: ", gameId);
+		// if (!gameId && this.gameId) {
+		// 	gameId = this.gameId;
+		// }
 
-		if (!gameId) {
-			return Promise.reject(
-				new Error("No gameId available. Did you call registerGameRequest()?")
-			);
-		}
+		// if (!gameId) {
+		// 	return Promise.reject(
+		// 		new Error("No gameId available. Did you call registerGameRequest()?")
+		// 	);
+		// }
 
 		// If we’re already connecting or open, just skip
 		if (this.isConnected()) {
@@ -85,10 +87,9 @@ export class Numer0nClient {
 			return Promise.resolve();
 		}
 
-		const wsUrl = `${this.httpServerUrl.replace(
-			/^http/,
-			"ws"
-		)}/?gameId=${gameId}`;
+		const wsUrl = `${this.httpServerUrl.replace(/^http/, "ws")}/?gameId=${
+			this.gameId
+		}`;
 		console.log(`Connecting to WebSocket at: ${wsUrl}`);
 		this.ws = new WebSocket(wsUrl);
 
@@ -121,18 +122,19 @@ export class Numer0nClient {
 				console.log("WebSocket closed.", event);
 				// Attempt to reconnect only if gameId is defined
 				// Attempt to reconnect only if gameId is defined and not already reconnecting
-				if (gameId) {
-					this.attemptReconnect(gameId);
-				} else {
-					console.error(
-						"Cannot reconnect: either gameId is undefined or already reconnecting."
-					);
-				}
+				this.attemptReconnect();
+				// if (gameId) {
+				// 	this.attemptReconnect(gameId);
+				// } else {
+				// 	console.error(
+				// 		"Cannot reconnect: either gameId is undefined or already reconnecting."
+				// 	);
+				// }
 			};
 		});
 	}
 
-	private attemptReconnect(gameId: string) {
+	private attemptReconnect() {
 		// To avoid multiple reconnect attempts stacking
 		// If for some reason we got here and the WS is already connected, bail
 		if (this.isConnected()) {
@@ -151,7 +153,7 @@ export class Numer0nClient {
 				return;
 			}
 
-			this.connect(gameId)
+			this.connect()
 				.then(() => {
 					console.log("Reconnected!");
 					// Reset the delay on a successful connection
@@ -166,10 +168,10 @@ export class Numer0nClient {
 					);
 					console.log(
 						"attempting to reconnect recursively with delay: ",
-						this.reconnectDelay,
-						gameId
+						this.reconnectDelay
+						// gameId
 					);
-					this.attemptReconnect(gameId);
+					this.attemptReconnect();
 				});
 		}, this.reconnectDelay);
 	}

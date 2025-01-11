@@ -153,12 +153,9 @@ export default function Onboard() {
 			gameService,
 			contractAddress.toString()
 		);
-		const numer0nClient = new Numer0nClient(numer0nContractService);
-		await numer0nClient.registerGameRequest(
-			gameCode,
-			contractAddress.toString()
-		);
-		await numer0nClient.connect();
+		const numer0nClient = new Numer0nClient(gameCode, numer0nContractService);
+		await numer0nClient.registerGameRequest(contractAddress.toString());
+		// await numer0nClient.connect();
 
 		// gameService.setGamePort(port);
 		gameService.setGameCode(gameCode);

@@ -90,12 +90,13 @@ export const useGame = () => {
 				return;
 			}
 			try {
-				const numer0nClient = new Numer0nClient(numer0nContractService);
 				const gameId = gameService.getGameCode();
-				console.log("gameId in initNumer0nClient: ", gameId);
-				if (gameId) {
-					await numer0nClient.connect(gameId);
-				}
+				const numer0nClient = new Numer0nClient(gameId, numer0nContractService);
+
+				// console.log("gameId in initNumer0nClient: ", gameId);
+				// if (gameId) {
+				// 	await numer0nClient.connect(gameId);
+				// }
 
 				setNumer0nClient(numer0nClient);
 			} catch (error) {
