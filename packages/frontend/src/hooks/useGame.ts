@@ -124,22 +124,17 @@ export const useGame = () => {
 
 	useEffect(() => {
 		const intervalId = setInterval(async () => {
+			// checks below necessary...?
 			if (!hasVal(gameService, "gameService", "useGame")) return;
-			await updateStates();
+			if (!hasVal(numer0nContractService, "numer0nContractService", "useGame"))
+				return;
+			updateStates();
+			loadHistry(false, false);
 		}, 5000);
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, [gameService]);
-
-	useEffect(() => {
-		const intervalId = setInterval(async () => {
-			await loadHistry(false, false);
-		}, 5000);
-		return () => {
-			clearInterval(intervalId);
-		};
-	}, []);
+	}, [gameService, numer0nContractService]);
 
 	useEffect(() => {
 		if (round == null) return;
