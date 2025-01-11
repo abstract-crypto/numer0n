@@ -18,6 +18,7 @@ import {
 	GAME_STATUS,
 	createGame,
 } from "src/services";
+import { hasVal } from "src/scripts";
 
 export default function Onboard() {
 	const {
@@ -43,17 +44,11 @@ export default function Onboard() {
 		const loadOnboard = async () => {
 			console.log("loadOnboard");
 			console.log("0");
-			if (!gameService) {
-				console.log("gameService not found");
-				return;
-			}
+			if (!hasVal(gameService, "gameService")) return;
 			console.log("1");
-
-			if (!numer0nContractService) {
-				console.log("Numer0n service not found");
-				return;
-			}
+			if (!hasVal(numer0nContractService, "numer0nContractService")) return;
 			console.log("2");
+
 			const gameCode = gameService.getGameCode();
 			const contractAddress = gameService.getContractAddress();
 			if (!gameCode || !contractAddress) {
@@ -78,10 +73,7 @@ export default function Onboard() {
 
 			if (Number(fetchedGameData.status) !== GAME_STATUS.NULL) {
 				console.log("6");
-				if (!numer0nClient) {
-					console.log("numer0nClient not found");
-					return;
-				}
+				if (!hasVal(numer0nClient, "numer0nClient")) return;
 				console.log("7");
 
 				// get opponent

@@ -72,6 +72,7 @@ export class Numer0nContractService {
 				.wait();
 		} catch (e) {
 			console.log("Join game error: ", e);
+			throw new Error("Join game error");
 		}
 	}
 
@@ -88,6 +89,7 @@ export class Numer0nContractService {
 				.wait();
 		} catch (e) {
 			console.log("Add number error: ", e);
+			throw new Error("Add number error");
 		}
 	}
 
@@ -104,6 +106,7 @@ export class Numer0nContractService {
 				.wait();
 		} catch (e) {
 			console.log("Guess number error: ", e);
+			throw new Error("Guess number error");
 		}
 	}
 
@@ -125,6 +128,7 @@ export class Numer0nContractService {
 				.wait();
 		} catch (e) {
 			console.log("Evaluate guess error: ", e);
+			throw new Error("Evaluate guess error");
 		}
 	}
 

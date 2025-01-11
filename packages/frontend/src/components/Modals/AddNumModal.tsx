@@ -67,7 +67,6 @@ function AddNumMoodal(props: AddNumModalType) {
 
 			await numer0nContractService.addNumber(BigInt(num));
 			gameService.setSecretNumber(num);
-
 			props.onClose();
 		} catch (err) {
 			console.error("Error adding number", err);
@@ -110,6 +109,7 @@ function AddNumMoodal(props: AddNumModalType) {
 					/>
 				</Center>
 				<Divider my="sm" />
+				{error && <Text c="red">{error}</Text>}
 				<Center mt={20} mb={10}>
 					<Group>
 						<Button color="gray" onClick={props.onClose}>

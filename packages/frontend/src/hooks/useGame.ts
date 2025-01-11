@@ -51,7 +51,7 @@ export const useGame = () => {
 
 	useEffect(() => {
 		setGameService(new GameService());
-	}, []);
+	}, [gameService]);
 
 	useEffect(() => {
 		const initNumer0nService = async () => {

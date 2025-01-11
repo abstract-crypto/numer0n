@@ -41,8 +41,8 @@ export default function Game() {
 
 			if (!hasVal(numer0nContractService, "numer0nContractService", "Game.tsx"))
 				return;
-			if (status !== GAME_STATUS.STARTED) {
-				console.log("[Game.tsx] status is not started");
+			if (status !== GAME_STATUS.PLAYERS_SET) {
+				console.log("[Game.tsx] status is not PLAYERS_SET");
 				return;
 			}
 			const self = gameService.getSelf().address;
