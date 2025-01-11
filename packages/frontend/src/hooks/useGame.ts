@@ -50,8 +50,9 @@ export const useGame = () => {
 	const [contractAddress, setContractAddress] = useState<string | null>(null);
 
 	useEffect(() => {
+		console.log("gameService in useEffect: ", gameService);
 		setGameService(new GameService());
-	}, [gameService]);
+	}, []);
 
 	useEffect(() => {
 		const initNumer0nService = async () => {
@@ -315,7 +316,7 @@ export const useGame = () => {
 			return;
 		}
 		await gameService.logout();
-		setGameService(null);
+		setGameService(new GameService());
 	};
 
 	return {

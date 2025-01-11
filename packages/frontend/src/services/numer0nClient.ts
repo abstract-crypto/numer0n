@@ -19,14 +19,15 @@ export class Numer0nClient {
 
 	private reconnectDelay = 1000; // start at 1s
 	private maxReconnectDelay = 30000; // cap at 30s
-	private isReconnecting: boolean = false;
+	// private isReconnecting: boolean = false;
 
 	/**
 	 * @param contractService  An instance of Numer0nContractService for local contract calls
 	 */
 	constructor(
 		private gameId: string,
-		private contractService: Numer0nContractService
+		private contractService: Numer0nContractService,
+		skipConnect: boolean = false
 	) {
 		this.userId = contractService.self.getAddress().toString();
 		this.httpServerUrl =
@@ -35,7 +36,9 @@ export class Numer0nClient {
 				? "http://localhost:3001"
 				: "https://5f14-109-172-176-130.ngrok-free.app");
 
-		this.connect();
+		if (!skipConnect) {
+			this.connect();
+		}
 	}
 
 	/**
@@ -149,7 +152,7 @@ export class Numer0nClient {
 				console.log(
 					"WebSocket is already connected now. Stopping reconnect attempts."
 				);
-				this.isReconnecting = false;
+				// this.isReconnecting = false;
 				return;
 			}
 

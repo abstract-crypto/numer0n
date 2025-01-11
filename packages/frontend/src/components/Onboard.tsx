@@ -153,7 +153,11 @@ export default function Onboard() {
 			gameService,
 			contractAddress.toString()
 		);
-		const numer0nClient = new Numer0nClient(gameCode, numer0nContractService);
+		const numer0nClient = new Numer0nClient(
+			gameCode,
+			numer0nContractService,
+			true
+		);
 		await numer0nClient.registerGameRequest(contractAddress.toString());
 		// await numer0nClient.connect();
 
@@ -175,6 +179,8 @@ export default function Onboard() {
 
 		setIsGameCreated(true);
 		setLoadingCreate(false);
+
+		numer0nClient.connect();
 	}
 
 	useEffect(() => {
