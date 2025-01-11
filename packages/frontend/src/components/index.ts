@@ -7,6 +7,7 @@ import InvitePage from "./InvitePage";
 import Header from "./Header";
 import Player from "./Player";
 import Card from "./Card";
+import OnboardDescription from "./OnboardDescription";
 export * from "./Modals";
 
 export {
@@ -19,4 +20,5 @@ export {
 	Header,
 	Player,
 	Card,
+	OnboardDescription,
 };

@@ -435,7 +435,7 @@ export class Numer0nClient {
 		);
 
 		notifications.show({
-			title: "Opponent Sent Guess",
+			title: "Opponent sent guess",
 			message: `Their guess: ${guess}`,
 			withCloseButton: true,
 			position: "top-right",

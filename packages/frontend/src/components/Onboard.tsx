@@ -6,7 +6,6 @@ import {
 	Center,
 	Text,
 	Stack,
-	Box,
 	CopyButton,
 	Anchor,
 	TextInput,
@@ -19,6 +18,7 @@ import {
 	createGame,
 } from "src/services";
 import { hasVal } from "src/scripts";
+import OnboardDescription from "./OnboardDescription";
 
 export default function Onboard() {
 	const {
@@ -181,29 +181,7 @@ export default function Onboard() {
 
 	return (
 		<Container mt={100}>
-			<Box mb={50}>
-				<Text
-					style={{
-						marginTop: 50,
-						fontSize: "35px",
-						textAlign: "center",
-					}}
-				>
-					Welcome To Numer0n!
-				</Text>
-				<Text
-					style={{
-						marginTop: 20,
-						fontSize: "20px",
-						textAlign: "center",
-					}}
-					mx={40}
-					mb={50}
-				>
-					Numer0n is a number-guessing game like a "Hit & Blow". <br /> Built on
-					Aztec Sandbox.
-				</Text>
-			</Box>
+			<OnboardDescription />
 			{isGameCreated ? (
 				<Stack align="center">
 					<Text style={{ textAlign: "center" }}>
@@ -259,7 +237,7 @@ export default function Onboard() {
 							input: {
 								backgroundColor: "rgba(255, 255, 255, 0.1)",
 								border: "none",
-								borderBottom: "1px solid gray",
+								borderBottom: "1px solid purple",
 								borderRadius: 0,
 								color: "black", // Optional: Customize text color for better visibility
 

@@ -2,15 +2,18 @@ import { Group, Text, Button, Anchor } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import imgGithub from "src/assets/github-mark.png";
+import imgLogo from "src/assets/image2vector.svg";
 import { GAME_STATUS } from "src/services";
 import { SetPXEModal } from "src/components";
 import { useAccountContext, useGameContext } from "src/contexts";
+import { useMediaQuery } from "@mantine/hooks";
 
 export default function Header() {
 	const { pxe, wallet, connectWallet, disconnectWallet } = useAccountContext();
 	const { status, leaveGame } = useGameContext();
 	const [isPXEModalOpen, setIsPXEModalOpen] = useState<boolean>(false);
 	const navigate = useNavigate();
+	const isSmallScreen = useMediaQuery("(min-width: 48em)");
 
 	useEffect(() => {
 		const check = async () => {
@@ -40,34 +43,52 @@ export default function Header() {
 
 	return (
 		<Group py={5} mt={10} justify="space-between">
-			<Text
-				size="25px"
-				ml={35}
-				style={{ color: "black", fontFamily: "Verdana, sans-serif" }}
-			>
-				Numer0n
-			</Text>
+			<Group gap={10}>
+				<img
+					src={imgLogo}
+					alt="logo"
+					style={{ marginLeft: 35, width: 30, height: 35 }}
+				/>
+				{isSmallScreen && (
+					<Text
+						size="25px"
+						style={{ color: "black", fontFamily: "Verdana, sans-serif" }}
+					>
+						Numer0n
+					</Text>
+				)}
+			</Group>
 
 			<Group>
-				<Anchor
-					href="https://github.com/abstract-crypto/numer0n/blob/main/RuleBook.md"
-					target="_blank"
-					rel="noreferrer"
-					mr={10}
-				>
-					<Text c={"black"} style={{ textDecoration: "underline" }}>
-						RuleBook
-					</Text>
-				</Anchor>
-				<Anchor
-					href="https://github.com/abstract-crypto/numer0n"
-					target="_blank"
-					rel="noreferrer"
-					mt={8}
-					mr={10}
-				>
-					<img src={imgGithub} alt="github" style={{ width: 25, height: 25 }} />
-				</Anchor>
+				{isSmallScreen && (
+					<>
+						{" "}
+						<Anchor
+							href="https://github.com/abstract-crypto/numer0n/blob/main/RuleBook.md"
+							target="_blank"
+							rel="noreferrer"
+							mr={10}
+						>
+							<Text c={"black"} style={{ textDecoration: "underline" }}>
+								RuleBook
+							</Text>
+						</Anchor>
+						<Anchor
+							href="https://github.com/abstract-crypto/numer0n"
+							target="_blank"
+							rel="noreferrer"
+							mt={8}
+							mr={10}
+						>
+							<img
+								src={imgGithub}
+								alt="github"
+								style={{ width: 25, height: 25 }}
+							/>
+						</Anchor>
+					</>
+				)}
+
 				{status !== GAME_STATUS.STARTED && (
 					<>
 						<Button
