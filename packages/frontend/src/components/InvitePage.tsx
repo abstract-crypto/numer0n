@@ -15,6 +15,7 @@ function InvitePage() {
 		gameService,
 		numer0nClient,
 		contractAddress,
+		status,
 		setContractAddress,
 		setNumer0nService,
 		setNumer0nClient,
@@ -101,7 +102,10 @@ function InvitePage() {
 			setLoadingJoin(false);
 			return;
 		}
-		await numer0nService.joinGame(BigInt(secretCode));
+
+		if (status === GAME_STATUS.NULL) {
+			await numer0nService.joinGame(BigInt(secretCode));
+		}
 
 		const fetchedGameData = await numer0nService.getGame();
 		console.log("fetchedGameData: ", fetchedGameData);
