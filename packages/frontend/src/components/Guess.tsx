@@ -113,21 +113,20 @@ export default function Guess(props: GuessType) {
 			});
 
 			await numer0nContractService.guessNumber(num);
-			console.log("sendEvaluateGuessRequest...");
+
 			notifications.show({
-				title: "Guess sent. Waiting for evaluation...",
+				title: "Guess Sent. Sending evaluation request...",
 				message: `Your guess: ${num}`,
 				withCloseButton: true,
 				position: "top-right",
 				autoClose: 5000,
 			});
 
-			console.log("num: ", num);
 			await numer0nClient.sendEvaluateGuessRequest(num);
 
 			notifications.show({
-				title: "Evaluation done...",
-				message: `Loading evaluation result...`,
+				title: "Evaluation done. Loading evaluation result...",
+				message: `Your guess: ${num}`,
 				withCloseButton: true,
 				position: "top-right",
 				autoClose: 5000,
