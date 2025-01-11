@@ -338,6 +338,14 @@ export class Numer0nClient {
 			// So the first argument is "guesser" => but our code is flexible.
 			await this.contractService.evaluateGuess(userId, Number(guess));
 
+			notifications.show({
+				title: "Evaluation complete",
+				message: `sending the response back to the guesser...`,
+				withCloseButton: true,
+				position: "top-right",
+				autoClose: 5000,
+			});
+
 			// Send back "evaluateGuessResult" as a JSON-RPC request
 			// The server will forward a final response to the original guesser
 			const msg = {

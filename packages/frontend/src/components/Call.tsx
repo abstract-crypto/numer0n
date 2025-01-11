@@ -4,6 +4,7 @@ import { numLen } from "../scripts/constants";
 import { useGameContext, useAccountContext } from "../contexts";
 import GuessNumModal from "./Modals/GuessNumModal";
 import EnableSessionKeyModal from "./Modals/EnableSessionKey";
+import { notifications } from "@mantine/notifications";
 
 function hasVal<T>(
 	value: T | null | undefined,
@@ -95,10 +96,16 @@ export default function Call(props: CallType) {
 
 			await numer0nContractService.guessNumber(num);
 			console.log("sendEvaluateGuessRequest...");
+			notifications.show({
+				title: "Guess sent. Waiting for evaluation...",
+				message: `Your guess: ${num}`,
+				withCloseButton: true,
+				position: "top-right",
+				autoClose: 5000,
+			});
+
 			console.log("num: ", num);
 			await numer0nClient.sendEvaluateGuessRequest(num);
-
-			// TODO: loading forever...
 
 			console.log("round: ", round);
 			if (round == null) {
