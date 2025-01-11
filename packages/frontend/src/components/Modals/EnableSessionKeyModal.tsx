@@ -51,7 +51,6 @@ function EnableSessionKeyModal({ isOpen, onClose }: EnableSessionKeyModalType) {
 		}
 
 		try {
-			// await addSessionKeys();
 			const numer0nContract = await numer0nContractService.getNumer0nContract();
 
 			const addresses = [numer0nContract.address, numer0nContract.address];
@@ -106,6 +105,7 @@ function EnableSessionKeyModal({ isOpen, onClose }: EnableSessionKeyModalType) {
 								<Text size="sm" mb="lg">
 									Blind Sign Mode allows you to play the game without having to
 									confirm transactions on popup every time. <br />
+									<br />
 									Powered by Obsidion Wallet's session key feature.
 								</Text>
 								<Divider my="sm" />

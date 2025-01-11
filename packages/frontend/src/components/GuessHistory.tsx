@@ -104,7 +104,9 @@ export default function GuessHistory(props: GuessHistoryType) {
 							>
 								Opp's guess
 							</th>
-							<th style={{ padding: "10px" }}>Eat - Bite</th>
+							<th style={{ padding: "10px", borderTopRightRadius: "5px" }}>
+								Eat - Bite
+							</th>
 							{/* <th style={{ padding: "10px", borderTopRightRadius: "5px" }}>
 								Item
 							</th> */}
