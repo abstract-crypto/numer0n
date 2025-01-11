@@ -91,14 +91,17 @@ export const useGame = () => {
 			}
 			try {
 				const gameId = gameService.getGameCode();
-				const numer0nClient = new Numer0nClient(gameId, numer0nContractService);
-
+				if (gameId) {
+					const numer0nClient = new Numer0nClient(
+						gameId,
+						numer0nContractService
+					);
+					setNumer0nClient(numer0nClient);
+				}
 				// console.log("gameId in initNumer0nClient: ", gameId);
 				// if (gameId) {
 				// 	await numer0nClient.connect(gameId);
 				// }
-
-				setNumer0nClient(numer0nClient);
 			} catch (error) {
 				console.error("Error connecting to numer0n client: ", error);
 			}
