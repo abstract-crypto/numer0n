@@ -64,11 +64,27 @@ export default function Guess(props: GuessType) {
 	async function handleCall() {
 		console.log("handleCall...");
 		setErrorMessage("");
-		if (!hasVal(gameService, "gameService")) return;
-		if (!hasVal(numer0nContractService, "numer0nContractService")) return;
-		if (!hasVal(numer0nClient, "numer0nClient")) return;
-		if (!hasVal(nums, "nums")) return;
-		if (!hasVal(wallet, "wallet")) return;
+		if (!hasVal(wallet, "wallet")) {
+			setErrorMessage("Wallet not found");
+			return;
+		}
+
+		if (!hasVal(gameService, "gameService")) {
+			setErrorMessage("Game service not found");
+			return;
+		}
+		if (!hasVal(numer0nContractService, "numer0nContractService")) {
+			setErrorMessage("Numer0n contract service not found");
+			return;
+		}
+		if (!hasVal(numer0nClient, "numer0nClient")) {
+			setErrorMessage("Numer0n client not found");
+			return;
+		}
+		if (!hasVal(nums, "nums")) {
+			setErrorMessage("Nums not found");
+			return;
+		}
 
 		if (props.isFinished) {
 			setErrorMessage("Game is over");
@@ -88,10 +104,13 @@ export default function Guess(props: GuessType) {
 
 			console.log("playerId :", props.playerId);
 
-			if (!wallet) {
-				console.log("wallet not found");
-				return;
-			}
+			notifications.show({
+				title: "Sending guess...",
+				message: `Your guess: ${num}`,
+				withCloseButton: true,
+				position: "top-right",
+				autoClose: 5000,
+			});
 
 			await numer0nContractService.guessNumber(num);
 			console.log("sendEvaluateGuessRequest...");
@@ -106,9 +125,18 @@ export default function Guess(props: GuessType) {
 			console.log("num: ", num);
 			await numer0nClient.sendEvaluateGuessRequest(num);
 
+			notifications.show({
+				title: "Evaluation done...",
+				message: `Loading evaluation result...`,
+				withCloseButton: true,
+				position: "top-right",
+				autoClose: 5000,
+			});
+
 			console.log("round: ", round);
 			if (round == null) {
 				console.log("[Call.tsx] round is null");
+				setErrorMessage("Round is null");
 				return;
 			}
 			const guess = await numer0nContractService.getGuess(
