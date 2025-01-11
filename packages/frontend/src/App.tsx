@@ -1,5 +1,8 @@
 import "@mantine/core/styles.css";
+import "@mantine/notifications/styles.css";
+
 import { MantineProvider, AppShell } from "@mantine/core";
+import { Notifications } from "@mantine/notifications";
 import { GameContextProvider } from "./contexts/useGameContext";
 import Onboard from "./components/Onboard";
 import Header from "./components/Header";
@@ -11,6 +14,7 @@ import { AccountContextProvider } from "./contexts/useAccountContext";
 export default function App() {
 	return (
 		<MantineProvider>
+			<Notifications />
 			<AccountContextProvider>
 				<GameContextProvider>
 					<AppShell

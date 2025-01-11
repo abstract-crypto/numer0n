@@ -1,5 +1,4 @@
 import { AztecAddress, AccountWallet } from "@aztec/aztec.js";
-
 import { Numer0nContract } from "../artifacts/Numer0n.js";
 import { GameService, Guess } from "src/services/gameService.js";
 

@@ -41,20 +41,21 @@ export default function Game() {
 
 			if (!hasVal(numer0nContractService, "numer0nContractService", "Game.tsx"))
 				return;
+			if (status !== GAME_STATUS.STARTED) {
+				console.log("[Game.tsx] status is not started");
+				return;
+			}
 			const self = gameService.getSelf().address;
 			try {
 				const secretNum = await numer0nContractService.getSecretNum(self);
 				console.log("secretNum: ", secretNum);
-				if (secretNum == 0) {
-					setOpenAddNumModal(true);
-				}
 			} catch (e) {
 				console.log("e: ", e);
 				setOpenAddNumModal(true);
 				return;
 			}
 		})();
-	}, [gameService, round, status, numer0nContractService]);
+	}, [gameService, status, numer0nContractService]);
 
 	useEffect(() => {
 		(async () => {

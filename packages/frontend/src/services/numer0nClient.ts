@@ -1,5 +1,6 @@
 import { AztecAddress } from "@aztec/aztec.js";
 import { Numer0nContractService } from "./numer0nContractService.js";
+import { notifications } from "@mantine/notifications";
 
 interface PendingRequest {
 	resolve: (value: any) => void;
@@ -322,6 +323,14 @@ export class Numer0nClient {
 
 		console.log("guesser: ", userId);
 		console.log("guessNum: ", guess);
+
+		notifications.show({
+			title: "Guess received. Starting evaluation...",
+			message: `Opponent guessed ${guess}`,
+			withCloseButton: true,
+			position: "top-right",
+			autoClose: 5000,
+		});
 
 		try {
 			// Evaluate the guess locally (on this client)
