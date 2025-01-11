@@ -1,5 +1,5 @@
 import { IncomingMessage } from "http";
-import { WebSocket, WebSocketServer } from "ws";
+import { WebSocket } from "ws";
 interface Game {
 	id: string;
 	contractAddress: string;

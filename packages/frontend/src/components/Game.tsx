@@ -9,6 +9,7 @@ import CallHistory from "./CallHistory";
 import TurnNotificationModal from "./Modals/TurnNotificationModal";
 import GameResultModal from "./Modals/GameResultModal";
 import { GAME_STATUS } from "src/services";
+import { hasVal } from "src/scripts";
 
 export default function Game() {
 	const {
@@ -32,45 +33,56 @@ export default function Game() {
 	// Add secret num
 	useEffect(() => {
 		(async () => {
-			if (!gameService) {
-				console.log("Game data not found");
-				return;
-			}
+			if (!hasVal(gameService, "gameService", "Game.tsx")) return;
 			if (gameService.getSecretNumber() == undefined) {
 				setOpenAddNumModal(true);
+				return;
+			}
+
+			if (!hasVal(numer0nContractService, "numer0nContractService", "Game.tsx"))
+				return;
+			const self = gameService.getSelf().address;
+			try {
+				const secretNum = await numer0nContractService.getSecretNum(self);
+				console.log("secretNum: ", secretNum);
+				if (secretNum == 0) {
+					setOpenAddNumModal(true);
+				}
+			} catch (e) {
+				console.log("e: ", e);
+				setOpenAddNumModal(true);
+				return;
 			}
 		})();
-	}, [gameService]);
+	}, [gameService, round, status, numer0nContractService]);
 
 	useEffect(() => {
 		(async () => {
-			if (!gameService) {
-				console.log("Game data not found");
-				return;
-			}
-			const _gameData = gameService.getGameData();
+			if (!hasVal(gameService, "gameService", "Game.tsx")) return;
+			if (!hasVal(isFirst, "isFirst", "Game.tsx")) return;
+			if (!hasVal(round, "round", "Game.tsx")) return;
+
+			const _gameService = gameService.getGameData();
 
 			if (round == 0) {
-				return;
-			}
-
-			if (isFirst === null) {
+				console.log("[Game.tsx] round is 0");
 				return;
 			}
 
 			if (status !== GAME_STATUS.STARTED) {
+				console.log("[Game.tsx] status is not started");
 				return;
 			}
 
 			if (
-				(_gameData.self.id == 1 && isFirst) ||
-				(_gameData.self.id == 2 && !isFirst)
+				(_gameService.self.id == 1 && isFirst) ||
+				(_gameService.self.id == 2 && !isFirst)
 			) {
 				setIsMyTurn(true);
 				setOpenTurnNotificationModal(true);
 			} else if (
-				(_gameData.self.id == 1 && !isFirst) ||
-				(_gameData.self.id == 2 && isFirst)
+				(_gameService.self.id == 1 && !isFirst) ||
+				(_gameService.self.id == 2 && isFirst)
 			) {
 				setIsMyTurn(false);
 				setOpenTurnNotificationModal(false);

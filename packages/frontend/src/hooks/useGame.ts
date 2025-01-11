@@ -42,8 +42,8 @@ export const useGame = () => {
 		useState<ResultRow[]>(emptyRows);
 
 	const [isFirst, setIsFirst] = useState<boolean | null>(null);
-	const [round, setRound] = useState(0);
-	const [status, setStatus] = useState(0);
+	const [round, setRound] = useState<number | null>(null);
+	const [status, setStatus] = useState<number | null>(null);
 	const [gameResult, setGameResult] = useState<GameResult | null>(null);
 	console.log("gameResult in useGame: ", gameResult);
 
@@ -169,6 +169,7 @@ export const useGame = () => {
 	}, []);
 
 	useEffect(() => {
+		if (round == null) return;
 		const lenMinusRound = round - 1;
 		if (round > 5 && resultRowsSelf.length == lenMinusRound) {
 			resultRowsSelf.push(emptyRow);

@@ -19,3 +19,15 @@ export function stringfyAndPaddZero(num: number) {
 		return num.toString();
 	}
 }
+
+export function hasVal<T>(
+	value: T | null | undefined,
+	name: string,
+	place?: string
+): value is NonNullable<T> {
+	if (value == null || value === undefined) {
+		console.log(`${name} not found at ${place}`);
+		return false;
+	}
+	return true;
+}

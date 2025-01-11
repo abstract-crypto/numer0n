@@ -16,6 +16,9 @@ export class Numer0nClient {
 	private gameId: string | null = null;
 	private userId: string;
 
+	private reconnectDelay = 1000; // start at 1s
+	private maxReconnectDelay = 30000; // cap at 30s
+
 	/**
 	 * @param contractService  An instance of Numer0nContractService for local contract calls
 	 */
@@ -104,10 +107,39 @@ export class Numer0nClient {
 				this.handleMessage(event.data);
 			};
 
-			this.ws.onclose = () => {
-				console.log("WebSocket closed.");
+			this.ws.onclose = (event) => {
+				console.log("WebSocket closed.", event);
+				// Attempt to reconnect only if gameId is defined
+				if (gameId) {
+					this.attemptReconnect(gameId);
+				} else {
+					console.error("Cannot reconnect: gameId is undefined.");
+				}
 			};
 		});
+	}
+
+	private attemptReconnect(gameId: string) {
+		// To avoid multiple reconnect attempts stacking
+		if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
+
+		setTimeout(() => {
+			this.connect(gameId)
+				.then(() => {
+					console.log("Reconnected!");
+					// Reset the delay on a successful connection
+					this.reconnectDelay = 1000;
+				})
+				.catch(() => {
+					console.log("Reconnect attempt failed. Will try again.");
+					// Increase the delay exponentially
+					this.reconnectDelay = Math.min(
+						this.reconnectDelay * 2,
+						this.maxReconnectDelay
+					);
+					this.attemptReconnect(gameId);
+				});
+		}, this.reconnectDelay);
 	}
 
 	/**

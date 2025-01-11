@@ -9,7 +9,7 @@ import {
 	Divider,
 	Center,
 } from "@mantine/core";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useAccountContext, useGameContext } from "src/contexts";
 
 type EnableSessionKeyModalType = {
@@ -33,6 +33,17 @@ function EnableSessionKeyModal({ isOpen, onClose }: EnableSessionKeyModalType) {
 		setIsSessionKeyEnabled(true);
 		localStorage.setItem("numer0n_session_key_enabled", JSON.stringify(true));
 	};
+
+	useEffect(() => {
+		let timer: NodeJS.Timeout;
+		if (success) {
+			timer = setTimeout(() => {
+				saveSessionKeyEnabled();
+				onClose();
+			}, 5000);
+		}
+		return () => clearTimeout(timer);
+	}, [success, onClose]);
 
 	const handleEnableSessionKey = async () => {
 		if (!numer0nContractService || !wallet) {
@@ -64,7 +75,6 @@ function EnableSessionKeyModal({ isOpen, onClose }: EnableSessionKeyModalType) {
 
 			await wallet.addSessionKeys(addresses, selectors, functionNames);
 			setSuccess(true);
-			saveSessionKeyEnabled();
 			setTimeout(() => {
 				onClose();
 			}, 5000);

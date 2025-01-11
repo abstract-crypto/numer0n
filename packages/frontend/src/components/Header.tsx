@@ -25,6 +25,7 @@ export default function Header() {
 	}, [pxe]);
 
 	const handleLeave = async () => {
+		localStorage.removeItem("numer0n_session_key_enabled");
 		await leaveGame();
 		navigate("/");
 	};

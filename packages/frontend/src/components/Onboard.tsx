@@ -12,11 +12,11 @@ import {
 } from "@mantine/core";
 import { useGameContext, useAccountContext } from "../contexts";
 import { useNavigate } from "react-router-dom";
-import { createGame } from "src/scripts";
 import {
 	Numer0nContractService,
 	Numer0nClient,
 	GAME_STATUS,
+	createGame,
 } from "src/services";
 
 export default function Onboard() {
@@ -44,7 +44,7 @@ export default function Onboard() {
 			console.log("loadOnboard");
 			console.log("0");
 			if (!gameService) {
-				console.log("Game data not found");
+				console.log("gameService not found");
 				return;
 			}
 			console.log("1");
@@ -122,8 +122,8 @@ export default function Onboard() {
 		setLoadingCreate(true);
 
 		if (!gameService) {
-			console.log("Game data not found");
-			setError("Game data not found");
+			console.log("gameService not found");
+			setError("gameService not found");
 			setLoadingCreate(false);
 			return;
 		}
@@ -188,12 +188,10 @@ export default function Onboard() {
 		setLoadingCreate(false);
 	}
 
-	const handlePasteInviteLink = (
-		event: React.ClipboardEvent<HTMLInputElement>
-	) => {
-		const pastedData = event.clipboardData.getData("text");
+	useEffect(() => {
+		if (!inviteLinkInput) return;
 		try {
-			const url = new URL(pastedData);
+			const url = new URL(inviteLinkInput);
 			const secret = url.searchParams.get("secret");
 			if (secret) {
 				navigate(`/invite?secret=${secret}`);
@@ -201,9 +199,9 @@ export default function Onboard() {
 				setError("Invalid invite link format.");
 			}
 		} catch (error) {
-			setError("Pasted data is not a valid URL.");
+			setError("Invalid invite link format.");
 		}
-	};
+	}, [inviteLinkInput, navigate]);
 
 	return (
 		<Container mt={100}>
@@ -271,11 +269,9 @@ export default function Onboard() {
 					)}
 					<TextInput
 						color="black"
-						label="Have Invite Link? Paste it here"
+						label="Have Invite Link? Paste it below"
 						mt={25}
-						value={inviteLinkInput}
 						onChange={(e) => setInviteLinkInput(e.currentTarget.value)}
-						onPaste={handlePasteInviteLink}
 						style={{
 							width: "100%",
 							maxWidth: 400,
@@ -285,8 +281,10 @@ export default function Onboard() {
 								marginBottom: "12px", // Adjust the space as needed
 							},
 							input: {
-								backgroundColor: "rgba(255, 255, 255, 0.2)",
-								border: "1px solid gray", // Optional: Customize border color
+								backgroundColor: "rgba(255, 255, 255, 0.1)",
+								border: "none",
+								borderBottom: "1px solid gray",
+								borderRadius: 0,
 								color: "black", // Optional: Customize text color for better visibility
 
 								"&:focus": {

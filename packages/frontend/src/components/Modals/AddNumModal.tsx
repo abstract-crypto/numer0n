@@ -25,6 +25,8 @@ function AddNumMoodal(props: AddNumModalType) {
 	const numLen = 3;
 	const [loading, setLoading] = useState<boolean>(false);
 
+	const [error, setError] = useState<string>("");
+
 	function handleInput(input: string) {
 		console.log("handleInput input: ", input);
 		if (input.length != numLen) setCallDisabled(true);
@@ -38,14 +40,17 @@ function AddNumMoodal(props: AddNumModalType) {
 		if (inputNums.length === new Set(inputNums).size) {
 			setCallDisabled(false);
 			setNums(inputNums);
+			setError("");
 		} else {
 			setCallDisabled(true);
+			setError("Invalid input");
 		}
 	}
 
 	async function handleConfirm() {
+		setError("");
 		if (!gameService) {
-			console.log("Game data not found");
+			console.log("gameService not found");
 			return;
 		}
 
@@ -64,6 +69,9 @@ function AddNumMoodal(props: AddNumModalType) {
 			gameService.setSecretNumber(num);
 
 			props.onClose();
+		} catch (err) {
+			console.error("Error adding number", err);
+			setError("Error adding number");
 		} finally {
 			setLoading(false);
 		}

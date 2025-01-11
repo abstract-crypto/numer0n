@@ -5,6 +5,18 @@ import { useGameContext, useAccountContext } from "../contexts";
 import GuessNumModal from "./Modals/GuessNumModal";
 import EnableSessionKeyModal from "./Modals/EnableSessionKey";
 
+function hasVal<T>(
+	value: T | null | undefined,
+	name: string,
+	place?: string
+): value is NonNullable<T> {
+	if (value == null || value === undefined) {
+		console.log(`${name} not found at ${place}`);
+		return false;
+	}
+	return true;
+}
+
 type CallType = {
 	playerId: number;
 	isMyTurn: boolean;
@@ -50,32 +62,24 @@ export default function Call(props: CallType) {
 	}
 
 	async function handleCall() {
-		if (!gameService) {
-			console.log("Game data not found");
-			return;
-		}
-
-		if (!numer0nContractService) {
-			console.log("Numer0n contract service not found");
-			return;
-		}
-
-		if (!numer0nClient) {
-			console.log("Numer0n client not found");
-			return;
-		}
-
-		if (!nums) return;
+		console.log("handleCall...");
 		setErrorMessage("");
+		if (!hasVal(gameService, "gameService")) return;
+		if (!hasVal(numer0nContractService, "numer0nContractService")) return;
+		if (!hasVal(numer0nClient, "numer0nClient")) return;
+		if (!hasVal(nums, "nums")) return;
+		if (!hasVal(wallet, "wallet")) return;
+
 		if (props.isFinished) {
 			setErrorMessage("Game is over");
 			setCalling(false);
 			return;
-		} else if (!props.isMyTurn) {
+		} else if (!props.isFinished && !props.isMyTurn) {
 			setErrorMessage("Not your turn");
 			setCalling(false);
 			return;
 		}
+
 		try {
 			setCalling(true);
 
@@ -97,6 +101,10 @@ export default function Call(props: CallType) {
 			// TODO: loading forever...
 
 			console.log("round: ", round);
+			if (round == null) {
+				console.log("[Call.tsx] round is null");
+				return;
+			}
 			const guess = await numer0nContractService.getGuess(
 				wallet.getAddress(),
 				round

@@ -300,3 +300,24 @@ const fromBigIntToHexStrAddress = (addr: bigint) => {
 	// return "0x" + BigInt(addr).toString(16);
 	return AztecAddress.fromBigInt(addr).toString();
 };
+
+export async function createGame(
+	player: AccountWallet,
+	gameCode: string
+): Promise<AztecAddress | null> {
+	try {
+		console.log("gameCode: ", gameCode);
+		const receipt = await Numer0nContract.deploy(
+			player,
+			player.getAddress(),
+			BigInt(gameCode)
+		)
+			.send()
+			.wait();
+
+		return receipt.contract.address;
+	} catch (e) {
+		console.log("e: ", e);
+		return null;
+	}
+}

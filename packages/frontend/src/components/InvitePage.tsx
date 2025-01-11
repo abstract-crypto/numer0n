@@ -32,7 +32,7 @@ function InvitePage() {
 	useEffect(() => {
 		const fetchGameData = async () => {
 			if (!gameService) {
-				console.log("Game data not found");
+				console.log("gameService not found");
 				return;
 			}
 			if (!wallet) {
@@ -63,7 +63,7 @@ function InvitePage() {
 			const contractAddress = await numer0nClient.getContractAddress();
 
 			if (!contractAddress) {
-				setError("Game data not found");
+				setError("gameService not found");
 				return;
 			}
 
