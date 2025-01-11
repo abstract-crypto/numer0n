@@ -104,6 +104,9 @@ export default function Guess(props: GuessType) {
 
 			console.log("playerId :", props.playerId);
 
+			// Notify the server of the guess before making the contract call
+			await numer0nClient.notifyGuess(num);
+
 			notifications.show({
 				title: "Sending guess...",
 				message: `Your guess: ${num}`,
@@ -115,7 +118,7 @@ export default function Guess(props: GuessType) {
 			await numer0nContractService.guessNumber(num);
 
 			notifications.show({
-				title: "Guess Sent. Sending evaluation request...",
+				title: "Guess Sent. Requesting evaluation to opponent...",
 				message: `Your guess: ${num}`,
 				withCloseButton: true,
 				position: "top-right",

@@ -164,6 +164,30 @@ export class Numer0nClient {
 	}
 
 	/**
+	 * Notifies the server of a new guess.
+	 * @param guessNum The guessed number.
+	 */
+	public async notifyGuess(guessNum: number): Promise<void> {
+		if (!this.ws) {
+			console.error("WebSocket is not connected.");
+			return;
+		}
+
+		const payload = {
+			jsonrpc: "2.0",
+			method: "notifyGuess",
+			params: {
+				userId: this.userId,
+				guess: guessNum,
+			},
+			id: this.generateRequestId(),
+		};
+
+		this.ws.send(JSON.stringify(payload));
+		console.log(`Sent notifyGuess with guess: ${guessNum}`);
+	}
+
+	/**
 	 * Initiates an "evaluateGuess" call on the server.
 	 * - The server forwards to the opponent => Opponent calls `evaluate_guess` locally => Opponent sends "evaluateGuessResult"
 	 * - Finally, the server returns a JSON-RPC response with the result to us.
@@ -321,6 +345,10 @@ export class Numer0nClient {
 				this.handleReceiveGuess(params, id);
 				break;
 
+			case "notifyGuess":
+				this.handleNotifyGuess(params);
+				break;
+
 			default:
 				console.log("Unknown JSON-RPC method from server:", method);
 		}
@@ -334,7 +362,6 @@ export class Numer0nClient {
 		console.log("handleReceiveGuess...");
 		console.log("params: ", params);
 		console.log("requestId: ", requestId);
-		// const guessNum = params?.guess;
 		const { guess, userId } = params;
 		console.log(`Received guess from opponent: ${guess}`);
 		if (!this.ws) {
@@ -394,6 +421,26 @@ export class Numer0nClient {
 			};
 			this.ws.send(JSON.stringify(msg));
 		}
+	}
+
+	/**
+	 * Handles incoming "notifyGuess" messages from the server.
+	 * @param params The parameters sent with the notifyGuess method.
+	 */
+	private async handleNotifyGuess(params: any) {
+		console.log("handleNotifyGuess...");
+		const { guess, userId } = params;
+		console.log(
+			`Received notifyGuess from user ${userId} with guess: ${guess}`
+		);
+
+		notifications.show({
+			title: "Opponent Sent Guess",
+			message: `Their guess: ${guess}`,
+			withCloseButton: true,
+			position: "top-right",
+			autoClose: 5000,
+		});
 	}
 
 	/**

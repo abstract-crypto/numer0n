@@ -174,6 +174,10 @@ export class GameServer {
 
 		// Dispatch to method handler
 		switch (method) {
+			case "notifyGuess":
+				this.handleNotifyGuess(ws, request);
+				break;
+
 			case "evaluateGuess":
 				this.handleEvaluateGuess(ws, request);
 				break;
@@ -196,6 +200,45 @@ export class GameServer {
 	}
 
 	/**
+	 * Handle "notifyGuess" JSON-RPC method from the client.
+	 * @param ws The WebSocket of the client.
+	 * @param request The JSON-RPC request object.
+	 */
+	private handleNotifyGuess(ws: WebSocket, request: JsonRpcRequest) {
+		const { params, id } = request;
+		const { guess, userId } = params;
+
+		console.log(
+			`Game [${this.game.id}]: User [${userId}] notified a guess: ${guess}`
+		);
+
+		// Forward the notifyGuess to the opponent
+		const opponent = this.getOpponent(userId);
+		if (!opponent) {
+			console.warn(
+				`Game [${this.game.id}]: No opponent to notify for user [${userId}]`
+			);
+			this.sendJsonRpcError(ws, id, -32002, "No opponent connected.");
+			return;
+		}
+
+		const notifyGuessMessage: JsonRpcRequest = {
+			jsonrpc: "2.0",
+			method: "notifyGuess",
+			params: {
+				guess,
+				userId,
+			},
+			id, // Keeping the same ID for response tracking
+		};
+
+		opponent.ws.send(JSON.stringify(notifyGuessMessage));
+		console.log(
+			`Game [${this.game.id}]: Forwarded notifyGuess to opponent [${opponent.userId}]`
+		);
+	}
+
+	/**
 	 * Handle "evaluateGuess" method from the client.
 	 *
 	 * - This user is "User A" who is guessing.
@@ -205,8 +248,7 @@ export class GameServer {
 	 */
 	private handleEvaluateGuess(ws: WebSocket, request: JsonRpcRequest) {
 		const { params, id } = request;
-		const guess = params?.guess;
-		const userId = params?.userId;
+		const { guess, userId } = params;
 		const requestId = id as string;
 
 		console.log(`Game [${this.game.id}]: User [${userId}] guessed: ${guess}`);
