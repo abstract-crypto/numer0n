@@ -1,6 +1,6 @@
 import { AztecAddress, AccountWallet } from "@aztec/aztec.js";
-import { Numer0nContract } from "../artifacts/Numer0n.js";
-import { GameService, Guess } from "src/services/gameService.js";
+import { Numer0nContract } from "src/artifacts/Numer0n";
+import { GameService, Guess } from "src/services/gameService";
 
 export class Numer0nContractService {
 	contractAddress: AztecAddress | null = null;

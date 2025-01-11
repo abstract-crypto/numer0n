@@ -1,4 +1,3 @@
-/* eslint-disable react-hooks/exhaustive-deps */
 import {
 	Modal,
 	Text,
@@ -9,8 +8,8 @@ import {
 	Center,
 	Stack,
 } from "@mantine/core";
-import { useState, useEffect } from "react";
-import { stringfyAndPaddZero } from "../../scripts/utils";
+import { useEffect, useState } from "react";
+import { stringfyAndPaddZero } from "src/scripts";
 
 type GuessNumModalType = {
 	isOpen: boolean;

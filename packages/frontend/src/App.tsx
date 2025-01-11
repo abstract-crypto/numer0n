@@ -1,15 +1,10 @@
+import { MantineProvider, AppShell } from "@mantine/core";
 import "@mantine/core/styles.css";
 import "@mantine/notifications/styles.css";
-
-import { MantineProvider, AppShell } from "@mantine/core";
-import { Notifications } from "@mantine/notifications";
-import { GameContextProvider } from "./contexts/useGameContext";
-import Onboard from "./components/Onboard";
-import Header from "./components/Header";
-import Game from "./components/Game";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import InvitePage from "./components/InvitePage";
-import { AccountContextProvider } from "./contexts/useAccountContext";
+import { Notifications } from "@mantine/notifications";
+import { AccountContextProvider, GameContextProvider } from "src/contexts";
+import { Onboard, Header, Game, InvitePage } from "src/components";
 
 export default function App() {
 	return (

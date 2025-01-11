@@ -1,9 +1,8 @@
 import { Grid } from "@mantine/core";
 import { useState, useEffect } from "react";
-import Card from "./Card";
-import { useGameContext } from "../contexts";
-import { numLen } from "../scripts/constants";
-import { paddHeadZero, stringfyAndPaddZero } from "../scripts/utils";
+import { Card } from "src/components";
+import { useGameContext } from "src/contexts";
+import { numLen, paddHeadZero, stringfyAndPaddZero } from "src/scripts";
 
 type PlayerType = { isSelf: boolean; opponentSecretNum: number | null };
 

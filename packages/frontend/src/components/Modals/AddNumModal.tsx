@@ -9,7 +9,7 @@ import {
 	PinInput,
 } from "@mantine/core";
 import { useState } from "react";
-import { useGameContext } from "../../contexts";
+import { useGameContext } from "src/contexts";
 
 type AddNumModalType = {
 	isOpen: boolean;

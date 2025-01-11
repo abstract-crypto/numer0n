@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
 	Button,
 	Container,
@@ -10,8 +11,7 @@ import {
 	Anchor,
 	TextInput,
 } from "@mantine/core";
-import { useGameContext, useAccountContext } from "../contexts";
-import { useNavigate } from "react-router-dom";
+import { useGameContext, useAccountContext } from "src/contexts";
 import {
 	Numer0nContractService,
 	Numer0nClient,
@@ -42,55 +42,39 @@ export default function Onboard() {
 
 	useEffect(() => {
 		const loadOnboard = async () => {
-			console.log("loadOnboard");
-			console.log("0");
+			console.log("loadOnboard...");
 			if (!hasVal(gameService, "gameService")) return;
-			console.log("1");
 			if (!hasVal(numer0nContractService, "numer0nContractService")) return;
-			console.log("2");
 
 			const gameCode = gameService.getGameCode();
-			const contractAddress = gameService.getContractAddress();
-			if (!gameCode || !contractAddress) {
-				console.log("Game code or contract address not found");
+			if (!gameCode) {
+				console.log("Game code not found");
 				return;
 			}
-			console.log("3");
 
 			if (!invitationLink) {
 				const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}`;
 				setInvitationLink(invitationUrl);
 			}
 
-			console.log("4");
-
 			const fetchedGameData = await numer0nContractService.getGame();
 			console.log("fetchedGameData: ", fetchedGameData);
-
-			console.log("5");
 			console.log("fetchedGameData.status: ", fetchedGameData.status);
 			console.log("GAME_STATUS.PLAYERS_SET: ", GAME_STATUS.PLAYERS_SET);
 
 			if (Number(fetchedGameData.status) !== GAME_STATUS.NULL) {
-				console.log("6");
 				if (!hasVal(numer0nClient, "numer0nClient")) return;
-				console.log("7");
 
 				// get opponent
 				const opponent = await numer0nClient.getOpponent();
-				if (!opponent) {
-					console.log("opponent not found");
-					return;
-				}
-				console.log("8");
+				if (!hasVal(opponent, "opponent", "Onboard.tsx")) return;
+
 				gameService.setOpponent({
 					id: 2,
 					address: opponent.toString(),
 					guesses: [],
 				});
-				console.log("9");
 				setPlayersSet(true);
-				console.log("10");
 			}
 		};
 		const intervalId = setInterval(loadOnboard, 5000);
@@ -159,9 +143,7 @@ export default function Onboard() {
 			true
 		);
 		await numer0nClient.registerGameRequest(contractAddress.toString());
-		// await numer0nClient.connect();
 
-		// gameService.setGamePort(port);
 		gameService.setGameCode(gameCode);
 		gameService.setContractAddress(contractAddress.toString());
 		gameService.setSelf({
@@ -170,7 +152,6 @@ export default function Onboard() {
 			guesses: [],
 		});
 
-		// const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}&port=${port}`;
 		const invitationUrl = `${window.location.origin}/invite?secret=${gameCode}`;
 		setInvitationLink(invitationUrl);
 

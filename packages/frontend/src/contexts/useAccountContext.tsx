@@ -1,5 +1,5 @@
 import { createContext, useContext, ReactNode } from "react";
-import { useAccount } from "../hooks/useAccount";
+import { useAccount } from "src/hooks";
 
 type AccountContextProps = ReturnType<typeof useAccount>;
 

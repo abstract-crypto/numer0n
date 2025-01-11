@@ -25,8 +25,6 @@ interface JsonRpcResponse {
 
 export class GameServer {
 	private game: Game;
-	// private port: number;
-	// private wss: WebSocketServer;
 
 	// Key: WebSocket, Value: user connection info
 	// private userMap: Map<WebSocket, UserConnection>;
@@ -41,42 +39,6 @@ export class GameServer {
 		}
 	>;
 
-	// constructor(gameId: string, contractAddress: string, port: number) {
-	// 	this.game = {
-	// 		id: gameId,
-	// 		contractAddress,
-	// 	};
-	// 	this.port = port;
-	// 	this.userMap = new Map();
-	// 	this.pendingEvaluations = new Map();
-
-	// 	// Create a new WSS for this game
-	// 	this.wss = new WebSocketServer({ port: this.port });
-	// 	console.log(`GameServer [${this.game.id}] listening on port ${this.port}`);
-
-	// 	// Handle new connections
-	// 	this.wss.on("connection", (ws, req) => {
-	// 		console.log(
-	// 			`Client connected to Game [${this.game.id}] from ${req.socket.remoteAddress}`
-	// 		);
-
-	// 		ws.on("message", (data) => {
-	// 			this.handleMessage(ws, data.toString());
-	// 		});
-
-	// 		ws.on("close", () => {
-	// 			const disconnectedUserId = this.getUserIdBySocket(ws);
-	// 			if (disconnectedUserId) {
-	// 				this.userMap.delete(disconnectedUserId);
-	// 				console.log(
-	// 					`Game [${this.game.id}]: User [${disconnectedUserId}] disconnected.`
-	// 				);
-	// 			} else {
-	// 				console.log(`Game [${this.game.id}]: Unknown user disconnected.`);
-	// 			}
-	// 		});
-	// 	});
-	// }
 	constructor(gameId: string, contractAddress: string) {
 		this.game = {
 			id: gameId,

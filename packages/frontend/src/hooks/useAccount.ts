@@ -1,11 +1,11 @@
 import { getInitialTestAccountsWallets } from "@aztec/accounts/testing";
 import { AccountWalletWithSecretKey } from "@aztec/aztec.js";
-import { useEffect } from "react";
-import { useState } from "react";
-import { usePXE } from "./usePXE";
+import { useEffect, useState } from "react";
 import { ObsidionWalletSDK } from "@obsidion/wallet-sdk";
-import { fallbackOpenPopup } from "./fallback";
 import { Eip1193Account } from "@obsidion/wallet-sdk/eip1193";
+import { hasVal } from "src/scripts";
+import { usePXE } from "./usePXE";
+import { fallbackOpenPopup } from "./fallback";
 
 const getWalletURL = () => {
 	if (import.meta.env.VITE_WALLET_URL) {
@@ -31,7 +31,7 @@ export function useAccount() {
 	const [wallet, setWallet] = useState<Eip1193Account | undefined>(undefined);
 
 	useEffect(() => {
-		if (!pxe) return;
+		if (!hasVal(pxe, "pxe", "useAccount")) return;
 		if (!sdk) {
 			const sdk = new ObsidionWalletSDK(pxe, {
 				fallbackOpenPopup: fallbackOpenPopup,
@@ -48,7 +48,8 @@ export function useAccount() {
 
 	useEffect(() => {
 		const initAccounts = async () => {
-			if (!pxe) return;
+			console.log("initAccounts...");
+			if (!hasVal(pxe, "pxe", "useAccount")) return;
 			const accounts = await getInitialTestAccountsWallets(pxe);
 			setDeployer(accounts[0]);
 		};
@@ -56,7 +57,7 @@ export function useAccount() {
 	}, [pxe]);
 
 	const connectWallet = async () => {
-		if (!pxe) return;
+		if (!hasVal(pxe, "pxe", "useAccount")) return;
 
 		const sdk = new ObsidionWalletSDK(pxe, {
 			fallbackOpenPopup: fallbackOpenPopup,
@@ -68,7 +69,7 @@ export function useAccount() {
 	};
 
 	const disconnectWallet = () => {
-		if (!sdk) return;
+		if (!hasVal(sdk, "sdk", "useAccount")) return;
 		sdk.disconnect();
 		setWallet(undefined);
 		setSdk(null);

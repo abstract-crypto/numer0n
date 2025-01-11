@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { stringfyAndPaddZero } from "src/scripts/utils";
-import { useAccountContext } from "src/contexts/useAccountContext";
+import { stringfyAndPaddZero, hasVal } from "src/scripts";
+import { useAccountContext } from "src/contexts";
 import {
 	GameService,
 	GAME_STATUS,
@@ -8,6 +8,7 @@ import {
 	Numer0nContractService,
 	Numer0nClient,
 } from "src/services";
+
 export type ResultRow = {
 	guess: string;
 	eat: string;
@@ -45,26 +46,17 @@ export const useGame = () => {
 	const [round, setRound] = useState<number | null>(null);
 	const [status, setStatus] = useState<number | null>(null);
 	const [gameResult, setGameResult] = useState<GameResult | null>(null);
-	console.log("gameResult in useGame: ", gameResult);
 
 	const [contractAddress, setContractAddress] = useState<string | null>(null);
 
 	useEffect(() => {
-		console.log("gameService in useEffect: ", gameService);
 		setGameService(new GameService());
 	}, []);
 
 	useEffect(() => {
 		const initNumer0nService = async () => {
-			if (!gameService) {
-				console.log("game not found: ", gameService);
-				return;
-			}
-
-			if (!wallet) {
-				console.log("wallet not found: ", wallet);
-				return;
-			}
+			if (!hasVal(gameService, "gameService", "useGame")) return;
+			if (!hasVal(wallet, "wallet", "useGame")) return;
 
 			const contractAddr = contractAddress ?? gameService.getContractAddress();
 			console.log("contractAddr: ", contractAddr);
@@ -82,14 +74,9 @@ export const useGame = () => {
 
 	useEffect(() => {
 		const initNumer0nClient = async () => {
-			if (!gameService) {
-				console.log("gameService not found");
+			if (!hasVal(gameService, "gameService", "useGame")) return;
+			if (!hasVal(numer0nContractService, "numer0nContractService", "useGame"))
 				return;
-			}
-			if (!numer0nContractService) {
-				console.log("numer0nContractService not found");
-				return;
-			}
 			try {
 				const gameId = gameService.getGameCode();
 				if (gameId) {
@@ -99,28 +86,12 @@ export const useGame = () => {
 					);
 					setNumer0nClient(numer0nClient);
 				}
-				// console.log("gameId in initNumer0nClient: ", gameId);
-				// if (gameId) {
-				// 	await numer0nClient.connect(gameId);
-				// }
 			} catch (error) {
 				console.error("Error connecting to numer0n client: ", error);
 			}
 		};
 		initNumer0nClient();
-	}, [numer0nContractService]);
-
-	useEffect(() => {
-		if (!numer0nContractService) {
-			console.log("numer0nContractService not found");
-			return;
-		}
-
-		if (!wallet) {
-			console.log("wallet not found");
-			return;
-		}
-	}, [numer0nContractService, wallet]);
+	}, [gameService, numer0nContractService]);
 
 	const updateStates = async () => {
 		if (!numer0nContractService || !numer0nContractService.contractAddress) {
@@ -152,17 +123,13 @@ export const useGame = () => {
 
 	useEffect(() => {
 		const intervalId = setInterval(async () => {
-			if (!gameService) {
-				console.log("game not found");
-				return;
-			}
-
+			if (!hasVal(gameService, "gameService", "useGame")) return;
 			await updateStates();
 		}, 5000);
 		return () => {
 			clearInterval(intervalId);
 		};
-	}, [numer0nContractService, gameService]);
+	}, []);
 
 	useEffect(() => {
 		const intervalId = setInterval(async () => {
@@ -193,9 +160,10 @@ export const useGame = () => {
 	};
 
 	const loadHistry = async (isSelf: boolean, fromLocal: boolean) => {
+		console.log("loadHistry...");
 		if (fromLocal) {
 			const resultRows = await getHistryFromLocalStorage(isSelf);
-			if (!resultRows) return;
+			if (!hasVal(resultRows, "resultRows", "useGame")) return;
 			setResultRows(isSelf, resultRows);
 		} else {
 			let resultRows = await getHistry(isSelf);
@@ -213,11 +181,9 @@ export const useGame = () => {
 
 	const getHistryFromLocalStorage = async (
 		isSelf: boolean
-	): Promise<ResultRow[]> => {
-		if (!gameService) {
-			console.log("game not found");
-			return [];
-		}
+	): Promise<ResultRow[] | undefined> => {
+		console.log("getHistryFromLocalStorage...");
+		if (!hasVal(gameService, "gameService", "useGame")) return;
 
 		const history = gameService.getGuesses(isSelf).map((g: Guess) => ({
 			guess: g.guess === 0 ? "" : g.guess.toString(),
@@ -232,10 +198,8 @@ export const useGame = () => {
 		isSelf: boolean,
 		resultRows: ResultRow[]
 	) => {
-		if (!gameService) {
-			console.log("game not found");
-			return;
-		}
+		console.log("setHistryToLocalStorage...");
+		if (!hasVal(gameService, "gameService", "useGame")) return;
 
 		const guesses = resultRows.map((r) => ({
 			guess: Number(r.guess),
@@ -246,11 +210,11 @@ export const useGame = () => {
 		gameService.setGuesses(isSelf, guesses);
 	};
 
-	const getHistry = async (isSelf: boolean) => {
-		if (!gameService) {
-			console.log("game not found");
-			return;
-		}
+	const getHistry = async (
+		isSelf: boolean
+	): Promise<ResultRow[] | undefined> => {
+		console.log("getHistry...");
+		if (!hasVal(gameService, "gameService", "useGame")) return;
 
 		if (!numer0nContractService || !numer0nContractService.contractAddress) {
 			console.log("numer0nContractService not found");
@@ -267,13 +231,8 @@ export const useGame = () => {
 		console.log("opponent: ", opponent);
 
 		const player = isSelf ? self : opponent;
-
-		if (!player) {
-			console.log("player not found");
-			return;
-		}
-
 		console.log("player: ", player);
+		if (!hasVal(player, "player", "useGame")) return;
 
 		const round = await numer0nContractService.getRound();
 		setRound(Number(round));
@@ -301,7 +260,6 @@ export const useGame = () => {
 					// item: guess.item,
 					// item_result: guess.item_result,
 				};
-				// console.log("newResult: ", newResult);
 
 				resultRow.push(newResult);
 			}
@@ -311,10 +269,8 @@ export const useGame = () => {
 	};
 
 	const leaveGame = async () => {
-		if (!gameService) {
-			console.log("gameService not found");
-			return;
-		}
+		console.log("leaveGame...");
+		if (!hasVal(gameService, "gameService", "useGame")) return;
 		await gameService.logout();
 		setGameService(new GameService());
 	};

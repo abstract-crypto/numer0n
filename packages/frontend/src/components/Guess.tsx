@@ -1,9 +1,8 @@
 import { Button, Center, Stack, PinInput, Text, Box } from "@mantine/core";
 import { useEffect, useState } from "react";
-import { numLen } from "../scripts/constants";
-import { useGameContext, useAccountContext } from "../contexts";
-import GuessNumModal from "./Modals/GuessNumModal";
-import EnableSessionKeyModal from "./Modals/EnableSessionKey";
+import { numLen } from "src/scripts";
+import { useGameContext, useAccountContext } from "src/contexts";
+import { GuessNumModal, EnableSessionKeyModal } from "src/components";
 import { notifications } from "@mantine/notifications";
 
 function hasVal<T>(
@@ -18,13 +17,13 @@ function hasVal<T>(
 	return true;
 }
 
-type CallType = {
+type GuessType = {
 	playerId: number;
 	isMyTurn: boolean;
 	isFinished: boolean;
 };
 
-export default function Call(props: CallType) {
+export default function Guess(props: GuessType) {
 	const {
 		gameService,
 		round,

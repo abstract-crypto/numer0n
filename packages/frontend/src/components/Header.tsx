@@ -1,9 +1,9 @@
 import { Group, Text, Button, Anchor } from "@mantine/core";
 import { useEffect, useState } from "react";
-import imgGithub from "../../public/github-mark.png";
-import { GAME_STATUS } from "src/services";
 import { useNavigate } from "react-router-dom";
-import SetPXEModal from "./Modals/SetPXEModal";
+import imgGithub from "src/assets/github-mark.png";
+import { GAME_STATUS } from "src/services";
+import { SetPXEModal } from "src/components";
 import { useAccountContext, useGameContext } from "src/contexts";
 
 export default function Header() {

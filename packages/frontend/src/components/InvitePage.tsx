@@ -1,8 +1,8 @@
-// InvitePage.jsx
 import { Box, Button, Container, Stack, Text } from "@mantine/core";
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAccountContext, useGameContext } from "src/contexts";
+import { hasVal } from "src/scripts";
 import {
 	Numer0nContractService,
 	Numer0nClient,
@@ -14,7 +14,6 @@ function InvitePage() {
 		gameService,
 		numer0nClient,
 		contractAddress,
-		numer0nContractService,
 		setContractAddress,
 		setNumer0nService,
 		setNumer0nClient,
@@ -23,7 +22,6 @@ function InvitePage() {
 	const { wallet } = useAccountContext();
 	const location = useLocation();
 	const [secretCode, setSecretCode] = useState("");
-	// const [port, setPort] = useState(0);
 	const [error, setError] = useState("");
 	const [loadingJoin, setLoadingJoin] = useState(false);
 	const [completeJoin, setCompleteJoin] = useState(false);
@@ -32,25 +30,16 @@ function InvitePage() {
 
 	useEffect(() => {
 		const fetchGameData = async () => {
-			if (!gameService) {
-				console.log("gameService not found");
-				return;
-			}
-			if (!wallet) {
-				console.log("Wallet not found");
-				return;
-			}
+			console.log("fetchGameData...");
+			if (!hasVal(gameService, "gameService", "InvitePage.tsx")) return;
+			if (!hasVal(wallet, "wallet", "InvitePage.tsx")) return;
 
 			// Parse query params
 			const queryParams = new URLSearchParams(location.search);
 			const secret = queryParams.get("secret");
 
 			console.log("secret: ", secret);
-
-			if (!secret) {
-				setError("Invalid secret");
-				return;
-			}
+			if (!hasVal(secret, "secret", "InvitePage.tsx")) return;
 
 			const contractService = new Numer0nContractService(wallet, gameService);
 			const numer0nClient = new Numer0nClient(secret, contractService, true);
@@ -59,10 +48,7 @@ function InvitePage() {
 			console.log("numer0nClient connected");
 			const contractAddress = await numer0nClient.getContractAddress();
 
-			if (!contractAddress) {
-				setError("gameService not found");
-				return;
-			}
+			if (!hasVal(contractAddress, "contractAddress", "InvitePage.tsx")) return;
 
 			setSecretCode(secret);
 			setContractAddress(contractAddress);
@@ -71,7 +57,7 @@ function InvitePage() {
 		};
 
 		fetchGameData();
-	}, [location, gameService, wallet, numer0nClient, numer0nContractService]);
+	}, [location, gameService, wallet]);
 
 	useEffect(() => {
 		if (completeJoin) {
@@ -84,14 +70,20 @@ function InvitePage() {
 		console.log("handleJoinGame....");
 		setLoadingJoin(true);
 
-		if (!gameService || !contractAddress) {
-			console.log("Game data and/or contract address not found");
+		if (!gameService) {
+			setError("gameService not found");
+			setLoadingJoin(false);
+			return;
+		}
+
+		if (!contractAddress) {
+			setError("Contract address not found");
+			setLoadingJoin(false);
 			return;
 		}
 
 		if (!wallet) {
-			console.log("PXE Accounts not found");
-			setError("Connect your wallet to join a game");
+			setError("wallet not found");
 			setLoadingJoin(false);
 			return;
 		}
@@ -104,7 +96,6 @@ function InvitePage() {
 		const numer0nClient = new Numer0nClient(secretCode, numer0nService);
 
 		if (!secretCode) {
-			console.log("secret code not found");
 			setError("Secret code not found");
 			setLoadingJoin(false);
 			return;
@@ -116,14 +107,14 @@ function InvitePage() {
 
 		if (Number(fetchedGameData.status) !== GAME_STATUS.PLAYERS_SET) {
 			setError("Game wasn't properly set up");
-			console.log("fetchedGameData.status: ", fetchedGameData.status);
+			setLoadingJoin(false);
 			return;
 		}
 
-		// await numer0nClient.connect(secretCode);
 		const opponent = await numer0nClient.getOpponent();
 		if (!opponent) {
-			console.log("opponent not found");
+			setError("opponent not found");
+			setLoadingJoin(false);
 			return;
 		}
 

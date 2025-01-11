@@ -3,11 +3,11 @@ import { useEffect, useState } from "react";
 import { useGameContext } from "src/contexts";
 import { emptyRows, ResultRow } from "src/hooks/useGame";
 
-type CallHistoryType = {
+type GuessHistoryType = {
 	isSelf: boolean;
 };
 
-export default function CallHistory(props: CallHistoryType) {
+export default function GuessHistory(props: GuessHistoryType) {
 	const { gameService, resultRowsSelf, resultRowsOpponent, loadHistry } =
 		useGameContext();
 	const [resultRows, setResultRows] = useState<ResultRow[]>(emptyRows);

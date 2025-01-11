@@ -41,7 +41,6 @@ export type GameData = {
 	self: Player;
 	opponent: Player;
 	gameCode: string;
-	gamePort: number;
 };
 
 const emptyPlayer: Player = {
@@ -56,7 +55,6 @@ const emptyGameData: GameData = {
 	self: emptyPlayer,
 	opponent: emptyPlayer,
 	gameCode: "",
-	gamePort: 0,
 };
 
 export class GameService {
@@ -113,10 +111,6 @@ export class GameService {
 		return isSelf ? this.gameData.self.guesses : this.gameData.opponent.guesses;
 	}
 
-	getGamePort(): number {
-		return this.gameData.gamePort;
-	}
-
 	// Setters
 	setContractAddress(address: string) {
 		this.gameData.contractAddress = address;
@@ -154,11 +148,6 @@ export class GameService {
 		} else {
 			this.gameData.opponent.guesses = guesses;
 		}
-		this.saveToLocalStorage();
-	}
-
-	setGamePort(port: number) {
-		this.gameData.gamePort = port;
 		this.saveToLocalStorage();
 	}
 

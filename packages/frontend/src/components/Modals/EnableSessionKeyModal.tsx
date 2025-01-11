@@ -1,5 +1,4 @@
-import { FunctionSelector } from "@aztec/aztec.js";
-import { AztecAddress } from "@aztec/aztec.js";
+import { AztecAddress, FunctionSelector } from "@aztec/aztec.js";
 import {
 	Modal,
 	Text,

@@ -1,7 +1,7 @@
 import { Text, Stack } from "@mantine/core";
-import Player from "./Player";
-import { useGameContext } from "../contexts";
-import { shortenAddress } from "../scripts/utils";
+import { Player } from "src/components";
+import { useGameContext } from "src/contexts";
+import { shortenAddress } from "src/scripts";
 
 type PlayerBoardType = {
 	isSelf: boolean;

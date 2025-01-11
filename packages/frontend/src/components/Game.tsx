@@ -1,13 +1,15 @@
 import { useEffect, useState } from "react";
-import { Box, Button, Container, Group, SimpleGrid, Text } from "@mantine/core";
-import PlayerBoard from "./PlayerBoard";
-import Call from "./Call";
-// import Item from "./Item";
-import AddNumMoodal from "./Modals/AddNumModal";
-import { useGameContext } from "../contexts";
-import CallHistory from "./CallHistory";
-import TurnNotificationModal from "./Modals/TurnNotificationModal";
-import GameResultModal from "./Modals/GameResultModal";
+import { Box, Container, Group, SimpleGrid, Text } from "@mantine/core";
+import {
+	PlayerBoard,
+	Guess,
+	GuessHistory,
+	AddNumModal,
+	TurnNotificationModal,
+	GameResultModal,
+	// Item
+} from "./index";
+import { useGameContext } from "src/contexts";
 import { GAME_STATUS } from "src/services";
 import { hasVal } from "src/scripts";
 
@@ -171,15 +173,13 @@ export default function Game() {
 					<PlayerBoard isSelf={false} opponentSecretNum={opponentSecretNum} />
 				</SimpleGrid>
 				<SimpleGrid cols={2}>
-					<CallHistory
+					<GuessHistory
 						isSelf={true}
 						// itemUsed={itemUsed}
-						// historyUpdated={historyUpdated}
 					/>
-					<CallHistory
+					<GuessHistory
 						isSelf={false}
 						// itemUsed={itemUsed}
-						// historyUpdated={historyUpdated}
 					/>
 				</SimpleGrid>
 
@@ -198,7 +198,7 @@ export default function Game() {
 						/>
 					</SimpleGrid> */}
 				<Box mx={30} mt={50} pb={30}>
-					<Call
+					<Guess
 						playerId={gameService ? gameService.getSelf().id : 0}
 						isMyTurn={isMyTurn}
 						isFinished={status == GAME_STATUS.FINISHED}
@@ -206,7 +206,7 @@ export default function Game() {
 				</Box>
 			</Box>
 
-			<AddNumMoodal
+			<AddNumModal
 				isOpen={IsAddNumModalOpen}
 				onClose={() => setOpenAddNumModal(false)}
 			/>

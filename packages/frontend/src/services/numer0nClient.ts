@@ -1,6 +1,6 @@
 import { AztecAddress } from "@aztec/aztec.js";
-import { Numer0nContractService } from "./numer0nContractService.js";
 import { notifications } from "@mantine/notifications";
+import { Numer0nContractService } from "src/services/numer0nContractService";
 
 interface PendingRequest {
 	resolve: (value: any) => void;
@@ -14,12 +14,10 @@ export class Numer0nClient {
 	private httpServerUrl: string;
 	private ws: WebSocket | null = null;
 	private pendingRequests = new Map<string, PendingRequest>();
-	// private gameId: string | null = null;
 	private userId: string;
 
 	private reconnectDelay = 1000; // start at 1s
 	private maxReconnectDelay = 30000; // cap at 30s
-	// private isReconnecting: boolean = false;
 
 	/**
 	 * @param contractService  An instance of Numer0nContractService for local contract calls
@@ -56,9 +54,6 @@ export class Numer0nClient {
 				throw new Error(`Server returned status ${res.status}`);
 			}
 
-			// const data = await res.json();
-			// this.gameId = data.gameId;
-
 			console.log(`Created new game [${this.gameId}]`);
 		} catch (err) {
 			console.error("Failed to create game:", err);
@@ -71,17 +66,6 @@ export class Numer0nClient {
 	 * Sends a handshake message with our `userId`.
 	 */
 	public connect(): Promise<void> {
-		// console.log("gameId in connect: ", gameId);
-		// if (!gameId && this.gameId) {
-		// 	gameId = this.gameId;
-		// }
-
-		// if (!gameId) {
-		// 	return Promise.reject(
-		// 		new Error("No gameId available. Did you call registerGameRequest()?")
-		// 	);
-		// }
-
 		// If we’re already connecting or open, just skip
 		if (this.isConnected()) {
 			console.log(
@@ -126,13 +110,6 @@ export class Numer0nClient {
 				// Attempt to reconnect only if gameId is defined
 				// Attempt to reconnect only if gameId is defined and not already reconnecting
 				this.attemptReconnect();
-				// if (gameId) {
-				// 	this.attemptReconnect(gameId);
-				// } else {
-				// 	console.error(
-				// 		"Cannot reconnect: either gameId is undefined or already reconnecting."
-				// 	);
-				// }
 			};
 		});
 	}
@@ -152,7 +129,6 @@ export class Numer0nClient {
 				console.log(
 					"WebSocket is already connected now. Stopping reconnect attempts."
 				);
-				// this.isReconnecting = false;
 				return;
 			}
 
@@ -172,7 +148,6 @@ export class Numer0nClient {
 					console.log(
 						"attempting to reconnect recursively with delay: ",
 						this.reconnectDelay
-						// gameId
 					);
 					this.attemptReconnect();
 				});
