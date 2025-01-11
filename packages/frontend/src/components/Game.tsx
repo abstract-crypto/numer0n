@@ -81,8 +81,10 @@ export default function Game() {
 				(_gameService.self.id == 1 && isFirst) ||
 				(_gameService.self.id == 2 && !isFirst)
 			) {
-				setIsMyTurn(true);
-				setOpenTurnNotificationModal(true);
+				if (!isMyTurn) {
+					setIsMyTurn(true);
+					setOpenTurnNotificationModal(true);
+				}
 			} else if (
 				(_gameService.self.id == 1 && !isFirst) ||
 				(_gameService.self.id == 2 && isFirst)
