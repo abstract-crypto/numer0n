@@ -19,6 +19,7 @@ export class Numer0nClient {
 
 	private reconnectDelay = 1000; // start at 1s
 	private maxReconnectDelay = 30000; // cap at 30s
+	private isReconnecting: boolean = false;
 
 	/**
 	 * @param contractService  An instance of Numer0nContractService for local contract calls
@@ -77,6 +78,16 @@ export class Numer0nClient {
 				);
 			}
 
+			// Prevent multiple connection attempts
+			if (
+				this.ws &&
+				(this.ws.readyState === WebSocket.CONNECTING ||
+					this.ws.readyState === WebSocket.OPEN)
+			) {
+				console.log("WebSocket is already connecting or open.");
+				return resolve();
+			}
+
 			const wsUrl = `${this.httpServerUrl.replace(
 				/^http/,
 				"ws"
@@ -111,10 +122,13 @@ export class Numer0nClient {
 			this.ws.onclose = (event) => {
 				console.log("WebSocket closed.", event);
 				// Attempt to reconnect only if gameId is defined
-				if (gameId) {
+				// Attempt to reconnect only if gameId is defined and not already reconnecting
+				if (gameId && !this.isReconnecting) {
 					this.attemptReconnect(gameId);
 				} else {
-					console.error("Cannot reconnect: gameId is undefined.");
+					console.error(
+						"Cannot reconnect: either gameId is undefined or already reconnecting."
+					);
 				}
 			};
 		});
@@ -125,6 +139,11 @@ export class Numer0nClient {
 		if (this.ws && this.ws.readyState === WebSocket.OPEN) return;
 
 		setTimeout(() => {
+			if (this.ws && this.ws.readyState === WebSocket.OPEN) {
+				console.log("WebSocket is already open. No need to reconnect.");
+				this.isReconnecting = false;
+				return;
+			}
 			this.connect(gameId)
 				.then(() => {
 					console.log("Reconnected!");
