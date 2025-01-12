@@ -253,11 +253,6 @@ export default function Onboard() {
 							{error}
 						</Text>
 					)}
-					{error && (
-						<Text mt={10} color="red">
-							{error}
-						</Text>
-					)}
 				</Center>
 			)}
 		</Container>

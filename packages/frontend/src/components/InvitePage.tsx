@@ -75,15 +75,10 @@ function InvitePage() {
 	const handleJoinGame = async () => {
 		console.log("handleJoinGame....");
 		setLoadingJoin(true);
+		setError("");
 
 		if (!gameService) {
 			setError("gameService not found");
-			setLoadingJoin(false);
-			return;
-		}
-
-		if (!contractAddress) {
-			setError("Contract address not found");
 			setLoadingJoin(false);
 			return;
 		}
@@ -94,18 +89,30 @@ function InvitePage() {
 			return;
 		}
 
-		const numer0nService = new Numer0nContractService(
-			wallet,
-			gameService,
-			contractAddress
-		);
-		const numer0nClient = new Numer0nClient(secretCode, numer0nService);
+		if (!contractAddress) {
+			setError("Contract address not found");
+			setLoadingJoin(false);
+			return;
+		}
 
 		if (!secretCode) {
 			setError("Secret code not found");
 			setLoadingJoin(false);
 			return;
 		}
+
+		if (!status) {
+			setError("Game status not found");
+			setLoadingJoin(false);
+			return;
+		}
+
+		const numer0nService = new Numer0nContractService(
+			wallet,
+			gameService,
+			contractAddress
+		);
+		const numer0nClient = new Numer0nClient(secretCode, numer0nService);
 
 		if (status === GAME_STATUS.NULL) {
 			await numer0nService.joinGame(BigInt(secretCode));
@@ -165,7 +172,7 @@ function InvitePage() {
 					</Button>
 					{error && (
 						<Text mt={10} color="red">
-							{error}
+							{error + ". Wait or refresh and try again."}
 						</Text>
 					)}
 				</Stack>

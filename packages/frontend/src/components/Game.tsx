@@ -35,6 +35,7 @@ export default function Game() {
 	// Add secret num
 	useEffect(() => {
 		(async () => {
+			if (!IsAddNumModalOpen) return;
 			if (!hasVal(gameService, "gameService", "Game.tsx")) return;
 			if (gameService.getSecretNumber() == undefined) {
 				setOpenAddNumModal(true);
@@ -57,7 +58,7 @@ export default function Game() {
 				return;
 			}
 		})();
-	}, [gameService, status, numer0nContractService]);
+	}, [gameService, status, numer0nContractService, IsAddNumModalOpen]);
 
 	useEffect(() => {
 		(async () => {
