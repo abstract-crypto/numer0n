@@ -8,7 +8,7 @@ const markdown = `
    ## Basics
    - The secret number set by each player consists of 3 digits (0-9) with no duplication, e.g. 013, 591, 854, etc...
    - Players take turns and guess once at their turn in each round.
-   - At each guess, a feedback is given for each digit:
+   - At every guess, a feedback, either Eat or Bite, is given for each digit:
       - Eat: Both the digit and its position are correct.
       - Bite: The digit is included in the opp's secret number, but the position is incorrect.
       - E.g. If one's secret number is 154 and a guess is 524, the result is 1-1 ( 1 eat & 1 bite ).
@@ -18,10 +18,10 @@ const markdown = `
 
    ## How it works
    - Each players' secret number is stored on private state only visible to the owners.
-   - Each guessing involves in separate actions (tx) from both players 
-      1. the guesser commits their guess to the Numer0ncontract
-      2. the guessed compares the guess number with their secret number
-   - The guesser can only see the result of the guess, i.e. Eat and Bite, not the secret number.
+   - Each guessing involves in separate actions (transactions) from both players 
+      1. the guesse publicly commits their guess number to the contract
+      2. the guessed compares the guess number with their secret number in a private context and publicly stores the result i.e. Eat and Bite.
+   - This way, the guesser can only see the result of the guess not the secret number.
     `;
 
 type RuleBookModalType = {
