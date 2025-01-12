@@ -7,11 +7,14 @@ import { GAME_STATUS } from "src/services";
 import { SetPXEModal } from "src/components";
 import { useAccountContext, useGameContext } from "src/contexts";
 import { useMediaQuery } from "@mantine/hooks";
+import RuleBookModal from "./Modals/RuleBookModal";
 
 export default function Header() {
 	const { pxe, wallet, connectWallet, disconnectWallet } = useAccountContext();
 	const { status, leaveGame } = useGameContext();
 	const [isPXEModalOpen, setIsPXEModalOpen] = useState<boolean>(false);
+	const [isRuleBookModalOpen, setIsRuleBookModalOpen] =
+		useState<boolean>(false);
 	const navigate = useNavigate();
 	const isSmallScreen = useMediaQuery("(min-width: 48em)");
 
@@ -62,17 +65,13 @@ export default function Header() {
 			<Group>
 				{isSmallScreen && (
 					<>
-						{" "}
-						<Anchor
-							href="https://github.com/abstract-crypto/numer0n/blob/main/RuleBook.md"
-							target="_blank"
-							rel="noreferrer"
-							mr={10}
+						<Text
+							c={"black"}
+							style={{ textDecoration: "underline", cursor: "pointer" }}
+							onClick={() => setIsRuleBookModalOpen(true)}
 						>
-							<Text c={"black"} style={{ textDecoration: "underline" }}>
-								RuleBook
-							</Text>
-						</Anchor>
+							RuleBook
+						</Text>
 						<Anchor
 							href="https://github.com/abstract-crypto/numer0n"
 							target="_blank"
@@ -124,6 +123,10 @@ export default function Header() {
 			<SetPXEModal
 				isOpen={isPXEModalOpen}
 				onClose={() => setIsPXEModalOpen(false)}
+			/>
+			<RuleBookModal
+				isOpen={isRuleBookModalOpen}
+				onClose={() => setIsRuleBookModalOpen(false)}
 			/>
 		</Group>
 	);
