@@ -115,7 +115,7 @@ function InvitePage() {
 		const numer0nClient = new Numer0nClient(secretCode, numer0nService);
 
 		// if (status === GAME_STATUS.NULL) {
-		// 	await numer0nService.joinGame(BigInt(secretCode));
+		await numer0nService.joinGame(BigInt(secretCode));
 		// }
 
 		const fetchedGameData = await numer0nService.getGame();
