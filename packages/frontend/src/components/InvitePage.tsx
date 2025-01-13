@@ -101,11 +101,11 @@ function InvitePage() {
 			return;
 		}
 
-		if (!status) {
-			setError("Game status not found");
-			setLoadingJoin(false);
-			return;
-		}
+		// if (!status) {
+		// 	setError("Game status not found");
+		// 	setLoadingJoin(false);
+		// 	return;
+		// }
 
 		const numer0nService = new Numer0nContractService(
 			wallet,
@@ -114,9 +114,9 @@ function InvitePage() {
 		);
 		const numer0nClient = new Numer0nClient(secretCode, numer0nService);
 
-		if (status === GAME_STATUS.NULL) {
-			await numer0nService.joinGame(BigInt(secretCode));
-		}
+		// if (status === GAME_STATUS.NULL) {
+		// 	await numer0nService.joinGame(BigInt(secretCode));
+		// }
 
 		const fetchedGameData = await numer0nService.getGame();
 		console.log("fetchedGameData: ", fetchedGameData);
